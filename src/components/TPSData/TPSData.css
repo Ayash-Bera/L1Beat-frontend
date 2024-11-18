@@ -1,0 +1,48 @@
+.tps-data {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tps-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tps-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #ffffff;
+}
+
+.tps-current {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #82ca9d;
+}
+
+.graph-container {
+  height: 300px;
+  overflow-x: hidden;
+}
+
+/* Add media query */
+@media (max-width: 768px) {
+  .tps-data {
+    padding: 15px;
+  }
+
+  .graph-container {
+    height: 250px;
+    margin: 0 -15px;
+  }
+
+  .tps-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
