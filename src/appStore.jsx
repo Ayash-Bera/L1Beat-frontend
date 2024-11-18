@@ -148,13 +148,27 @@ const useStore = create((set) => ({
   })),
   fetchBlockchainData: async () => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL;
+      const API_URL = import.meta.env.VITE_API_URL || 'https://your-backend-url.vercel.app';
+      console.log('Fetching from:', `${API_URL}/api/chains`);
+      
       const response = await fetch(`${API_URL}/api/chains`);
+      
+      // Log response details for debugging
+      console.log('Response status:', response.status);
+      const contentType = response.headers.get('content-type');
+      console.log('Content type:', contentType);
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('Error response:', text);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       
-      // Log to verify API URL
-      console.log('Using API URL:', API_URL);
-      
+      // Log the received data
+      console.log('Received data:', data);
+
       const transformedData = data.map(chain => ({
         chainId: chain.chainId,
         name: chain.chainName,
@@ -192,6 +206,9 @@ const useStore = create((set) => ({
       set({ blockchainData: transformedData });
     } catch (error) {
       console.error('Error fetching blockchain data:', error);
+      console.error('Error details:', error.message);
+      // Set empty array to prevent UI errors
+      set({ blockchainData: [] });
     }
   },
 }))
