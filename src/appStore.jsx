@@ -148,8 +148,12 @@ const useStore = create((set) => ({
   })),
   fetchBlockchainData: async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/chains');
+      const API_URL = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${API_URL}/api/chains`);
       const data = await response.json();
+      
+      // Log to verify API URL
+      console.log('Using API URL:', API_URL);
       
       const transformedData = data.map(chain => ({
         chainId: chain.chainId,
