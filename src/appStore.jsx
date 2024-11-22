@@ -3,7 +3,7 @@ import { create } from 'zustand'
 const calculateScore = (validators, tvl, tps) => {
   // First, strictly validate input and active validators
   if (!Array.isArray(validators)) {
-    console.log('Invalid validators array');
+    if (import.meta.env.DEV) console.log('Invalid validators array');
     return 0;
   }
 
@@ -14,17 +14,9 @@ const calculateScore = (validators, tvl, tps) => {
     return !isNaN(stake) && stake > 0 && isActive;  // Added active status check
   });
 
-  // Log validation details
-  console.log('Validation Details:', {
-    chainName: validators[0]?.chainName || 'Unknown',
-    totalValidators: validators.length,
-    activeValidators: activeValidators.length,
-    validatorStatuses: validators.map(v => v.validationStatus)
-  });
-
   // If no active validators, return 0
   if (activeValidators.length === 0) {
-    console.log('No active validators found');
+    if (import.meta.env.DEV) console.log('No active validators found');
     return 0;
   }
 
@@ -47,12 +39,6 @@ const calculateScore = (validators, tvl, tps) => {
   if (activeValidators.length > 10) {
     score = 85 + Math.min((activeValidators.length - 10) / 90 * 15, 15);
   }
-
-  console.log('Final Scoring Details:', {
-    chainName: validators[0]?.chainName || 'Unknown',
-    activeValidators: activeValidators.length,
-    score: score
-  });
 
   return Math.min(Math.round(score), 100);
 };
@@ -149,15 +135,10 @@ const useStore = create((set) => ({
   fetchBlockchainData: async () => {
     try {
       const API_URL = import.meta.env.VITE_API_URL;
-      console.log('Fetching from:', `${API_URL}/api/chains`);
+      if (import.meta.env.DEV) console.log('Fetching from:', `${API_URL}/api/chains`);
       
       const response = await fetch(`${API_URL}/api/chains`);
       
-      // Log response details for debugging
-      console.log('Response status:', response.status);
-      const contentType = response.headers.get('content-type');
-      console.log('Content type:', contentType);
-
       if (!response.ok) {
         const text = await response.text();
         console.error('Error response:', text);
@@ -166,9 +147,6 @@ const useStore = create((set) => ({
       
       const data = await response.json();
       
-      // Log the received data
-      console.log('Received data:', data);
-
       const transformedData = data.map(chain => ({
         chainId: chain.chainId,
         name: chain.chainName,
@@ -206,8 +184,6 @@ const useStore = create((set) => ({
       set({ blockchainData: transformedData });
     } catch (error) {
       console.error('Error fetching blockchain data:', error);
-      console.error('Error details:', error.message);
-      // Set empty array to prevent UI errors
       set({ blockchainData: [] });
     }
   },
