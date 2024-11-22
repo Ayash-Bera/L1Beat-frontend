@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './Header.css'
-import logo from '../../assets/l1_logo_main_2.png'
+import logo from '../../assets/l1_logo_main.png'
 
 function Header({ onMenuClick }) {
   const [prevScrollPos, setPrevScrollPos] = useState(window.pageYOffset)
