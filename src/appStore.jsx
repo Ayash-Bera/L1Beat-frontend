@@ -45,15 +45,7 @@ const calculateScore = (validators, tvl, tps) => {
 
 const useStore = create((set, get) => ({
   // TVL Data
-  tvlData: [
-    { date: '2024-03-01', tvl: 2500000000 },
-    { date: '2024-03-02', tvl: 2720000000 },
-    { date: '2024-03-03', tvl: 2850000000 },
-    { date: '2024-03-04', tvl: 2650000000 },
-    { date: '2024-03-05', tvl: 2900000000 },
-    { date: '2024-03-06', tvl: 3100000000 },
-    { date: '2024-03-07', tvl: 3250000000 },
-  ],
+  tvlData: [],
   
   // TPS Data
   tpsData: [
@@ -192,6 +184,38 @@ const useStore = create((set, get) => ({
     } catch (error) {
       console.error('Error fetching blockchain data:', error);
       set({ blockchainData: [], isLoading: false });
+      throw error;
+    }
+  },
+
+  // Add a new fetch function for TVL data
+  fetchTVLData: async (days = 7) => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${API_URL}/api/tvl/history/?days=${days}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseData = await response.json();
+      
+      if (!responseData.success || !Array.isArray(responseData.data)) {
+        throw new Error('Invalid data format received from API');
+      }
+
+      // Sort data by date
+      const sortedData = responseData.data.sort((a, b) => a.date - b.date);
+      
+      if (import.meta.env.DEV) {
+        console.log('TVL data loaded:', sortedData);
+      }
+
+      set({ tvlData: sortedData });
+      return sortedData;
+    } catch (error) {
+      console.error('Error fetching TVL data:', error);
+      set({ tvlData: [] });
       throw error;
     }
   },

@@ -1,9 +1,14 @@
+import { useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import useStore from '../../appStore'
 import './TVLGraph.css'
 
 function TVLGraph() {
-  const tvlData = useStore((state) => state.tvlData)
+  const { tvlData, fetchTVLData } = useStore();
+
+  useEffect(() => {
+    fetchTVLData();
+  }, []);
 
   const formatTVL = (value) => {
     if (value >= 1000000000) {
@@ -15,15 +20,26 @@ function TVLGraph() {
     return `$${value.toFixed(0)}`
   }
 
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr)
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp * 1000)
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
+
+  if (!tvlData || tvlData.length === 0) {
+    return (
+      <div className="tvl-graph">
+        <div className="tvl-header">
+          <h2>Total Value Locked</h2>
+          <div className="tvl-current">Loading...</div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="tvl-graph">
       <div className="tvl-header">
-        <h2>Total Value Locked</h2>
+        <h2>Total Value Locked(Just Avalanche C-Chain)</h2>
         <div className="tvl-current">
           {formatTVL(tvlData[tvlData.length - 1].tvl)}
         </div>
