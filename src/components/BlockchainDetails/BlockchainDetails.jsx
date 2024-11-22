@@ -1,21 +1,95 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
+import { useState, useEffect, useMemo } from 'react'
 import useStore from '../../appStore'
 import './BlockchainDetails.css'
-import { useState } from 'react'
+
+// 1. Move helper functions outside of the component
+const calculateStakeDistribution = (validators) => {
+  if (!validators?.length) return [];
+
+  const activeValidators = validators.filter(validator => 
+    validator.validationStatus === 'active'
+  );
+
+  const totalStake = activeValidators.reduce((sum, validator) => {
+    return sum + (parseFloat(validator.amountStaked) || 0);
+  }, 0);
+
+  return activeValidators.map(validator => {
+    const stake = parseFloat(validator.amountStaked) || 0;
+    const percentage = (stake / totalStake) * 100;
+    
+    return {
+      name: validator.nodeId,
+      value: Number(percentage.toFixed(2)),
+      stake: stake,
+      fill: `hsl(${Math.random() * 360}, 70%, 50%)`
+    };
+  }).sort((a, b) => b.value - a.value);
+};
+
+const calculateAverageUptime = (validators) => {
+  if (!validators?.length) return 0;
+  const total = validators.reduce((acc, v) => acc + (v.uptimePerformance || 0), 0);
+  return (total / validators.length).toFixed(2);
+};
 
 function BlockchainDetails() {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  // 2. Define all hooks at the top level
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const fetchBlockchainData = useStore((state) => state.fetchBlockchainData);
   const blockchain = useStore((state) => 
     state.blockchainData.find(chain => chain.name.toLowerCase() === id.toLowerCase())
-  )
-  
-  console.log('Blockchain data:', blockchain);
-
+  );
+  const isDataLoaded = useStore((state) => state.blockchainData.length > 0);
   const [addingNetwork, setAddingNetwork] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // 3. Use useEffect for data fetching
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        if (!isDataLoaded) {
+          await fetchBlockchainData();
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [fetchBlockchainData, isDataLoaded]);
+
+  // 4. Memoize calculations
+  const stakeDistribution = useMemo(() => 
+    calculateStakeDistribution(blockchain?.validators || []),
+    [blockchain?.validators]
+  );
+
+  const averageUptime = useMemo(() => 
+    calculateAverageUptime(blockchain?.validators),
+    [blockchain?.validators]
+  );
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="details-container" role="alert" aria-busy="true">
+        <div className="loading">
+          <h2>Loading blockchain data...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  // Not found state
   if (!blockchain) {
     return (
       <div className="details-container">
@@ -24,57 +98,10 @@ function BlockchainDetails() {
           <button onClick={() => navigate('/')}>Back to Dashboard</button>
         </div>
       </div>
-    )
+    );
   }
 
-  // Calculate average uptime safely
-  const calculateAverageUptime = () => {
-    if (!blockchain.validators?.length) {
-      console.log('No validators found');
-      return 0;
-    }
-    
-    const total = blockchain.validators.reduce((acc, v) => {
-      return acc + (v.uptimePerformance || 0);
-    }, 0);
-    
-    return (total / blockchain.validators.length).toFixed(2);
-  };
-
-  const calculateStakeDistribution = (validators) => {
-    if (!validators?.length) return [];
-
-    const activeValidators = validators.filter(validator => 
-      validator.validationStatus === 'active'
-    );
-
-    const totalStake = activeValidators.reduce((sum, validator) => {
-      return sum + (parseFloat(validator.amountStaked) || 0);
-    }, 0);
-
-    return activeValidators.map(validator => {
-      const stake = parseFloat(validator.amountStaked) || 0;
-      const percentage = (stake / totalStake) * 100;
-      
-      return {
-        name: validator.nodeId,
-        value: Number(percentage.toFixed(2)),
-        stake: stake,
-        fill: `hsl(${Math.random() * 360}, 70%, 50%)`
-      };
-    }).sort((a, b) => b.value - a.value);
-  };
-
-  // Calculate stake distribution when rendering
-  const stakeDistribution = calculateStakeDistribution(blockchain.validators);
-
-  // Add this helper function
-  const calculateTotalStake = (validators) => {
-    if (!validators?.length) return 0;
-    return validators.reduce((sum, validator) => 
-      sum + (parseFloat(validator.amountStaked) || 0), 0);
-  };
-
+  // Helper functions (defined outside of render cycle)
   const addToMetaMask = async () => {
     if (!window.ethereum) {
       alert('Please install MetaMask to add this network!');
@@ -159,7 +186,7 @@ function BlockchainDetails() {
               </div>
               <div className="stat-item">
                 <span className="stat-label">Average Uptime</span>
-                <span className="stat-value">{calculateAverageUptime()}%</span>
+                <span className="stat-value">{averageUptime}%</span>
               </div>
               <div className="stat-item">
                 <span className="stat-label">Total Validators</span>

@@ -43,7 +43,7 @@ const calculateScore = (validators, tvl, tps) => {
   return Math.min(Math.round(score), 100);
 };
 
-const useStore = create((set) => ({
+const useStore = create((set, get) => ({
   // TVL Data
   tvlData: [
     { date: '2024-03-01', tvl: 2500000000 },
@@ -133,7 +133,13 @@ const useStore = create((set) => ({
     }
   })),
   fetchBlockchainData: async () => {
+    // Return existing data if already loaded
+    if (get().blockchainData.length > 0) {
+      return get().blockchainData;
+    }
+
     try {
+      set({ isLoading: true });
       const API_URL = import.meta.env.VITE_API_URL;
       if (import.meta.env.DEV) console.log('Fetching from:', `${API_URL}/api/chains`);
       
@@ -181,10 +187,12 @@ const useStore = create((set) => ({
         chainLogoUri: chain.chainLogoUri
       }));
 
-      set({ blockchainData: transformedData });
+      set({ blockchainData: transformedData, isLoading: false });
+      return transformedData;
     } catch (error) {
       console.error('Error fetching blockchain data:', error);
-      set({ blockchainData: [] });
+      set({ blockchainData: [], isLoading: false });
+      throw error;
     }
   },
 }))
