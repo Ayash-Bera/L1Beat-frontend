@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom'
 import './Sidebar.css'
-import { ConnectButton } from '@0xstt/builderkit'
 
 function Sidebar({ isOpen, onClose }) {
   return (
@@ -12,7 +11,6 @@ function Sidebar({ isOpen, onClose }) {
         ></div>
       )}
       <div className={`sidebar ${isOpen ? 'open' : ''}`}>
-        <ConnectButton className="connect-button" />
         <nav className="sidebar-nav">
           <ul className="sidebar-menu">
             <li className="sidebar-item">
