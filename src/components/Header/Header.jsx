@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './Header.css'
 import logo from '../../assets/l1_logo_main.png'
 
 function Header({ onMenuClick }) {
+  const navigate = useNavigate()
   const [prevScrollPos, setPrevScrollPos] = useState(window.pageYOffset)
   const [visible, setVisible] = useState(true)
   const [animateLogo, setAnimateLogo] = useState(false)
@@ -21,8 +23,8 @@ function Header({ onMenuClick }) {
   }, [prevScrollPos])
 
   const handleLogoClick = () => {
-    console.log("Logo clicked!");
     setAnimateLogo(true);
+    navigate('/');
     setTimeout(() => {
       setAnimateLogo(false);
     }, 1000);
