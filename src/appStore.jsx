@@ -148,7 +148,7 @@ const useStore = create((set) => ({
   })),
   fetchBlockchainData: async () => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'https://your-backend-url.vercel.app';
+      const API_URL = import.meta.env.VITE_API_URL;
       console.log('Fetching from:', `${API_URL}/api/chains`);
       
       const response = await fetch(`${API_URL}/api/chains`);
