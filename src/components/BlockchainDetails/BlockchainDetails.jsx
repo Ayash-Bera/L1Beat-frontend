@@ -29,10 +29,15 @@ function BlockchainDetails() {
 
   // Calculate average uptime safely
   const calculateAverageUptime = () => {
-    if (!blockchain.validators?.length) return 0;
+    if (!blockchain.validators?.length) {
+      console.log('No validators found');
+      return 0;
+    }
+    
     const total = blockchain.validators.reduce((acc, v) => {
-      return acc + (v.validatorHealth?.reachabilityPercent || 0);
+      return acc + (v.uptimePerformance || 0);
     }, 0);
+    
     return (total / blockchain.validators.length).toFixed(2);
   };
 
@@ -184,7 +189,7 @@ function BlockchainDetails() {
                               {validator.validationStatus || 'Unknown'}
                             </span>
                           </td>
-                          <td>{validator.validatorHealth?.reachabilityPercent?.toFixed(2) || 0}%</td>
+                          <td>{validator.uptimePerformance?.toFixed(2) || 0}%</td>
                           <td>{validator.amountStaked || 0} AVAX</td>
                         </tr>
                       ))}
