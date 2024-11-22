@@ -120,3 +120,35 @@
     gap: 10px;
   }
 }
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  gap: 20px;
+}
+
+.loading-container p {
+  color: #a0a0a0;
+  font-size: 1.1rem;
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #2a2a2a;
+  border-bottom-color: #4a90e2;
+  border-radius: 50%;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

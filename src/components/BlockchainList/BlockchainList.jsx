@@ -1,10 +1,19 @@
 import { useNavigate } from 'react-router-dom'
 import useStore from '../../appStore'
 import './BlockchainList.css'
+import { useState, useEffect } from 'react'
 
 function BlockchainList() {
   const navigate = useNavigate()
   const blockchainData = useStore((state) => state.blockchainData)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Set loading to false when blockchainData is available
+    if (blockchainData && blockchainData.length > 0) {
+      setIsLoading(false)
+    }
+  }, [blockchainData])
 
   // Sort blockchains by score in descending order
   const sortedBlockchains = [...blockchainData].sort((a, b) => b.score - a.score);
@@ -35,43 +44,50 @@ function BlockchainList() {
   return (
     <div className="data-list">
       <h2>Avalanche L1's Data</h2>
-      <div className="blockchain-cards">
-        {sortedBlockchains.map((chain) => (
-          <div 
-            className="blockchain-card" 
-            key={chain.chainId}
-            onClick={() => handleCardClick(chain.name)}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="card-header">
-              <img 
-                src={chain.chainLogoUri} 
-                alt={chain.name} 
-                className="chain-logo"
-              />
-              <h3>{chain.name}</h3>
-              <span className={getScoreClass(chain.score)}>
-                Score: {chain.score}
-              </span>
+      {isLoading ? (
+        <div className="loading-container">
+          <div className="loader"></div>
+          <p>Loading blockchain data...</p>
+        </div>
+      ) : (
+        <div className="blockchain-cards">
+          {sortedBlockchains.map((chain) => (
+            <div 
+              className="blockchain-card" 
+              key={chain.chainId}
+              onClick={() => handleCardClick(chain.name)}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="card-header">
+                <img 
+                  src={chain.chainLogoUri} 
+                  alt={chain.name} 
+                  className="chain-logo"
+                />
+                <h3>{chain.name}</h3>
+                <span className={getScoreClass(chain.score)}>
+                  Score: {chain.score}
+                </span>
+              </div>
+              <div className="card-content">
+                <div className="stat-item">
+                  <span className="stat-label">Active Validators</span>
+                  <span className="stat-value">{getActiveValidatorCount(chain.validators)}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">TVL</span>
+                  <span className="stat-value">{formatTVL(chain.tvl)}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">TPS</span>
+                  <span className="stat-value">{formatNumber(chain.tps)}</span>
+                </div>
+              </div>
             </div>
-            <div className="card-content">
-              <div className="stat-item">
-                <span className="stat-label">Active Validators</span>
-                <span className="stat-value">{getActiveValidatorCount(chain.validators)}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">TVL</span>
-                <span className="stat-value">{formatTVL(chain.tvl)}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">TPS</span>
-                <span className="stat-value">{formatNumber(chain.tps)}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -27,6 +27,10 @@ export default defineConfig(({ mode }) => {
               type: 'image/png'
             }
           ]
+        },
+        workbox: {
+          maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}']
         }
       })
     ],
@@ -34,7 +38,23 @@ export default defineConfig(({ mode }) => {
       'process.env.NODE_ENV': JSON.stringify(mode)
     },
     build: {
-      sourcemap: mode === 'development'
+      sourcemap: mode === 'development',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Split vendor chunks
+            vendor: [
+              'react',
+              'react-dom',
+              'react-router-dom',
+              '@0xstt/builderkit'
+            ],
+            // Separate chunk for recharts
+            charts: ['recharts']
+          }
+        }
+      },
+      chunkSizeWarningLimit: 3000 // 3MB
     }
   }
 })
