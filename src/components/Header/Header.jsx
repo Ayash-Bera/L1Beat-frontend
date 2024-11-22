@@ -1,13 +1,21 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Header.css'
-import logo from '../../assets/l1_logo_main.png'
+import logo from '../../assets/l1_logo_main_2.png'
 
 function Header({ onMenuClick }) {
   const navigate = useNavigate()
   const [prevScrollPos, setPrevScrollPos] = useState(window.pageYOffset)
   const [visible, setVisible] = useState(true)
-  const [animateLogo, setAnimateLogo] = useState(false)
+  const [animateLogo, setAnimateLogo] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimateLogo(false)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,17 +31,21 @@ function Header({ onMenuClick }) {
   }, [prevScrollPos])
 
   const handleLogoClick = () => {
-    setAnimateLogo(true);
-    navigate('/');
+    setAnimateLogo(true)
+    navigate('/')
     setTimeout(() => {
-      setAnimateLogo(false);
-    }, 1000);
+      setAnimateLogo(false)
+    }, 1000)
   }
 
   return (
     <header className={`header ${visible ? '' : 'header-hidden'}`}>
       <div className="header-container">
-        <button className="mobile-menu-btn" onClick={onMenuClick}>
+        <button 
+          className="mobile-menu-btn" 
+          onClick={onMenuClick}
+          aria-label="Toggle menu"
+        >
           <div className="hamburger">
             <span></span>
             <span></span>
@@ -42,7 +54,7 @@ function Header({ onMenuClick }) {
         </button>
         <div 
           className={`logo ${animateLogo ? 'animate' : ''}`} 
-          onClick={handleLogoClick} 
+          onClick={handleLogoClick}
           style={{ cursor: 'pointer' }}
         >
           <img src={logo} alt="L1Beat Logo" />

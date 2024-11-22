@@ -33,22 +33,29 @@ function App() {
     setIsSidebarOpen(!isSidebarOpen)
   }
 
+  // Close sidebar when clicking outside
+  const handleMainClick = () => {
+    if (isSidebarOpen) {
+      setIsSidebarOpen(false)
+    }
+  }
+
   return (
-      <Router>
-        <div className="app">
-          <Header onMenuClick={toggleSidebar} />
-          <Sidebar isOpen={isSidebarOpen} />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/blockchain/:id" element={<BlockchainDetails />} />
-              <Route path="/launch" element={<LaunchPad />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/bridge" element={<Bridge />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
+    <Router>
+      <div className="app">
+        <Header onMenuClick={toggleSidebar} />
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <main className="main-content" onClick={handleMainClick}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/blockchain/:id" element={<BlockchainDetails />} />
+            <Route path="/launch" element={<LaunchPad />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/bridge" element={<Bridge />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   )
 }
 
