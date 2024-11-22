@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { useState } from 'react'
 import { Web3Provider } from '@0xstt/builderkit'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { Analytics } from '@vercel/analytics/react'
 import Header from './components/Header/Header'
 import Sidebar from './components/Sidebar/Sidebar'
 import Dashboard from './components/Dashboard/Dashboard'
@@ -56,6 +57,10 @@ function App() {
           </Routes>
         </main>
         <SpeedInsights />
+        <Analytics 
+          debug={import.meta.env.DEV} // Enable debug mode in development
+          mode={import.meta.env.DEV ? 'development' : 'production'}
+        />
       </div>
     </Router>
   )
