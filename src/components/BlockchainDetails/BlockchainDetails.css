@@ -118,8 +118,9 @@ h1 {
 
 .cards-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 60% 40%;
   gap: 24px;
+  width: 100%;
 }
 
 .details-grid {
@@ -399,8 +400,7 @@ h1 {
 
 .validators-table {
   width: 100%;
-  border-collapse: collapse;
-  color: #ffffff;
+  table-layout: fixed;
 }
 
 .validators-table th,
@@ -461,8 +461,15 @@ h1 {
 }
 
 .node-id {
-  font-family: monospace;  /* Use monospace font for better readability of IDs */
-  cursor: pointer;         /* Indicate that hovering shows full ID */
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.node-id:hover {
+  opacity: 0.8;
 }
 
 .validators-table td {
@@ -547,17 +554,22 @@ h1 {
 /* Column widths */
 .validator-list-table th:nth-child(1),
 .validator-list-table td:nth-child(1) {
-  width: 30px;
+  width: 30%;
+}
+
+.validator-list-table th:nth-child(2),
+.validator-list-table td:nth-child(2) {
+  width: 20%;
 }
 
 .validator-list-table th:nth-child(3),
 .validator-list-table td:nth-child(3) {
-  width: 150px;
+  width: 15%;
 }
 
 .validator-list-table th:nth-child(4),
 .validator-list-table td:nth-child(4) {
-  width: 100px;
+  width: 25%;
 }
 
 .cards-row {
@@ -780,3 +792,151 @@ h1 {
   background: #4a4a4a;
   border-radius: 3px;
 }
+
+/* Update the node ID display in validator information */
+.node-id-cell {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: monospace;
+}
+
+/* Update the node ID display in stake distribution */
+.nodeid-cell {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: monospace;
+}
+
+/* Adjust validator table layout */
+.validators-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.validators-table th,
+.validators-table td {
+  padding: 8px 12px;
+}
+
+/* Column widths for validator table */
+.validators-table th:nth-child(1),
+.validators-table td:nth-child(1) { width: 30%; } /* Reduced Node ID width */
+.validators-table th:nth-child(2),
+.validators-table td:nth-child(2) { width: 20%; } /* Increased Status width */
+.validators-table th:nth-child(3),
+.validators-table td:nth-child(3) { width: 15%; } /* Kept Uptime width */
+.validators-table th:nth-child(4),
+.validators-table td:nth-child(4) { width: 25%; } /* Reduced Stake width */
+
+/* Ensure table scrolls horizontally on small screens */
+.validators-list {
+  overflow-x: auto;
+  padding-bottom: 12px; /* Space for scrollbar */
+}
+
+/* Prevent text wrapping in table cells */
+.validators-table td,
+.validators-table th {
+  white-space: nowrap;
+  padding: 8px 12px;
+}
+
+/* Add styles for the copy button */
+.node-id-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0; /* Ensures flex items can shrink below content size */
+}
+
+.node-id-container span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 100px; /* Ensures minimum width for the node ID */
+}
+
+.copy-button {
+  flex-shrink: 0; /* Prevents the button from shrinking */
+  min-width: 60px; /* Minimum width for the button */
+  padding: 4px 8px;
+}
+
+/* Adjust for smaller screens */
+@media (max-width: 768px) {
+  .node-id-container {
+    gap: 4px;
+  }
+  
+  .node-id-container span {
+    min-width: 80px;
+  }
+  
+  .copy-button {
+    min-width: 50px;
+    padding: 2px 4px;
+  }
+}
+
+.stake-item .node-id {
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.stake-item .node-id:hover {
+  opacity: 0.8;
+}
+
+.distribution-item .node-id {
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.distribution-item .node-id:hover {
+  opacity: 0.8;
+}
+
+.nodeid-cell .node-id {
+  cursor: pointer;
+  color: #4a90e2;
+  font-family: monospace;
+}
+
+.nodeid-cell .node-id:hover {
+  opacity: 0.8;
+}
+
+/* Remove the old button styles */
+.copy-button {
+  display: none;
+}
+
+/* Validator Information table specific styles */
+.validators-table th:nth-child(1),
+.validators-table td:nth-child(1) { width: 30%; }
+.validators-table th:nth-child(2),
+.validators-table td:nth-child(2) { width: 20%; }
+.validators-table th:nth-child(3),
+.validators-table td:nth-child(3) { width: 15%; }
+.validators-table th:nth-child(4),
+.validators-table td:nth-child(4) { width: 25%; }
+
+/* Keep original styles for stake distribution table */
+.validator-list-table th:nth-child(1),
+.validator-list-table td:nth-child(1) { width: 5%; }  /* color dot */
+.validator-list-table th:nth-child(2),
+.validator-list-table td:nth-child(2) { width: 40%; } /* node id */
+.validator-list-table th:nth-child(3),
+.validator-list-table td:nth-child(3) { width: 30%; } /* stake */
+.validator-list-table th:nth-child(4),
+.validator-list-table td:nth-child(4) { width: 25%; } /* percentage */

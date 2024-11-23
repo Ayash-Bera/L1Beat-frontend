@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 import { useState, useEffect, useMemo } from 'react'
 import useStore from '../../appStore'
 import './BlockchainDetails.css'
+import copy from 'clipboard-copy';
 
 // 1. Move helper functions outside of the component
 const calculateStakeDistribution = (validators) => {
@@ -33,6 +34,12 @@ const calculateAverageUptime = (validators) => {
   if (!validators?.length) return 0;
   const total = validators.reduce((acc, v) => acc + (v.uptimePerformance || 0), 0);
   return (total / validators.length).toFixed(2);
+};
+
+// Update the copyToClipboard function
+const copyToClipboard = (text) => {
+  copy(text)
+    .catch(err => console.error('Copy failed:', err));
 };
 
 function BlockchainDetails() {
@@ -209,7 +216,15 @@ function BlockchainDetails() {
                       {blockchain.validators.map((validator) => (
                         <tr key={validator.nodeId}>
                           <td className="node-id-cell">
-                            {validator.nodeId}
+                            <div className="node-id-container">
+                              <span 
+                                className="node-id" 
+                                onClick={() => copyToClipboard(validator.nodeId)}
+                                title="Click to copy"
+                              >
+                                {validator.nodeId}
+                              </span>
+                            </div>
                           </td>
                           <td>
                             <span className={`status-${validator.validationStatus?.toLowerCase()}`}>
@@ -310,7 +325,15 @@ function BlockchainDetails() {
                           style={{ backgroundColor: validator.fill }}
                         ></div>
                       </td>
-                      <td className="nodeid-cell">{validator.name}</td>
+                      <td className="nodeid-cell">
+                        <span 
+                          className="node-id"
+                          onClick={() => copyToClipboard(validator.name)}
+                          title="Click to copy"
+                        >
+                          {validator.name.slice(0, 8)}...{validator.name.slice(-8)}
+                        </span>
+                      </td>
                       <td>{validator.stake.toLocaleString()} AVAX</td>
                       <td>{validator.value.toFixed(1)}%</td>
                     </tr>

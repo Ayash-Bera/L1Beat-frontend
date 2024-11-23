@@ -7,13 +7,14 @@
     "dev": "vite --mode development --host",
     "build": "vite build --mode production",
     "build:dev": "vite build --mode development",
-    "preview": "vite preview",
+    "preview": "vite preview --host",
     "lint": "eslint ."
   },
   "dependencies": {
     "@0xstt/builderkit": "^0.0.1",
     "@vercel/analytics": "^1.4.1",
     "@vercel/speed-insights": "^1.1.0",
+    "clipboard-copy": "^4.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0",

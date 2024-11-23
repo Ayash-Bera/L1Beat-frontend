@@ -3,7 +3,10 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
+  const isProduction = mode === 'production'
+  const isDevelopment = mode === 'development'
+  
   return {
     plugins: [
       react(),
@@ -29,32 +32,40 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB
+          maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
           globPatterns: ['**/*.{js,css,html,ico,png,svg}']
         }
       })
     ],
     define: {
-      'process.env.NODE_ENV': JSON.stringify(mode)
+      'process.env.NODE_ENV': JSON.stringify(mode),
+      'process.env.VITE_API_URL': JSON.stringify(
+        isProduction 
+          ? 'https://backend-phi-green.vercel.app'
+          : 'http://localhost:5001'
+      )
+    },
+    preview: {
+      port: 4173,
+      strictPort: true,
+      host: true,
     },
     build: {
-      sourcemap: mode === 'development',
+      sourcemap: isDevelopment,
       rollupOptions: {
         output: {
           manualChunks: {
-            // Split vendor chunks
             vendor: [
               'react',
               'react-dom',
               'react-router-dom',
               '@0xstt/builderkit'
             ],
-            // Separate chunk for recharts
             charts: ['recharts']
           }
         }
       },
-      chunkSizeWarningLimit: 3000 // 3MB
+      chunkSizeWarningLimit: 3000
     }
   }
 })
