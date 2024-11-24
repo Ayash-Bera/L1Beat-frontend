@@ -85,6 +85,11 @@ function BlockchainDetails() {
     [blockchain?.validators]
   );
 
+  // Add this useEffect to scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Loading state
   if (isLoading) {
     return (
@@ -216,15 +221,13 @@ function BlockchainDetails() {
                       {blockchain.validators.map((validator) => (
                         <tr key={validator.nodeId}>
                           <td className="node-id-cell">
-                            <div className="node-id-container">
-                              <span 
-                                className="node-id" 
-                                onClick={() => copyToClipboard(validator.nodeId)}
-                                title="Click to copy"
-                              >
-                                {validator.nodeId}
-                              </span>
-                            </div>
+                            <span 
+                              className="node-id" 
+                              onClick={() => copyToClipboard(validator.nodeId)}
+                              title={validator.nodeId}
+                            >
+                              {validator.nodeId.slice(0, 4)}...{validator.nodeId.slice(-4)}
+                            </span>
                           </td>
                           <td>
                             <span className={`status-${validator.validationStatus?.toLowerCase()}`}>

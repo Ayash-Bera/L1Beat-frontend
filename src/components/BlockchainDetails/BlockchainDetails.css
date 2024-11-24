@@ -1,14 +1,19 @@
 .details-container {
-  padding: 24px;
+  padding: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: -20px;
 }
 
 .details-header {
   background: #1a1a1a;
   border-radius: 12px;
   padding: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   grid-column: 1 / -1;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header-content {
@@ -359,18 +364,54 @@ h1 {
 
 @media (max-width: 768px) {
   .details-container {
-    padding: 20px;
-    margin-left: 0;
+    padding: 12px;
+    margin-top: 56px;
   }
 
-  .details-header {
+  .details-header,
+  .detail-card,
+  .validator-info-card,
+  .stake-distribution-card {
+    width: 100%;
+    padding: 16px;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  .header-content {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
-    padding: 20px;
+    gap: 12px;
+    width: 100%;
   }
 
-  .details-header h1 {
+  .details-grid,
+  .cards-row,
+  .detail-card,
+  .validator-info-card,
+  .stake-distribution-card {
+    width: 100%;
+    padding: 16px;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  .header-left {
+    gap: 12px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 12px;
+  }
+
+  .chain-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  h1 {
     font-size: 2rem;
   }
 
@@ -389,6 +430,57 @@ h1 {
 
   .chart-wrapper {
     padding: 10px 0;
+  }
+
+  .validators-list,
+  .validators-legend {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .validators-table,
+  .validator-list-table {
+    min-width: 600px;
+    width: 100%;
+  }
+
+  .validators-table th:nth-child(1),
+  .validators-table td:nth-child(1) { width: 30%; }
+  .validators-table th:nth-child(2),
+  .validators-table td:nth-child(2) { width: 20%; }
+  .validators-table th:nth-child(3),
+  .validators-table td:nth-child(3) { width: 15%; }
+  .validators-table th:nth-child(4),
+  .validators-table td:nth-child(4) { width: 25%; }
+
+  .validator-list-table th:nth-child(1),
+  .validator-list-table td:nth-child(1) { width: 5%; }
+  .validator-list-table th:nth-child(2),
+  .validator-list-table td:nth-child(2) { width: 35%; }
+  .validator-list-table th:nth-child(3),
+  .validator-list-table td:nth-child(3) { width: 25%; }
+  .validator-list-table th:nth-child(4),
+  .validator-list-table td:nth-child(4) { width: 20%; }
+
+  .validators-table th,
+  .validators-table td,
+  .validator-list-table th,
+  .validator-list-table td {
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+
+  .node-id-cell,
+  .nodeid-cell {
+    max-width: none;
+  }
+
+  .chart-wrapper {
+    width: 100%;
+    height: 300px;
+    margin: 10px 0;
+    padding: 0;
   }
 }
 
@@ -940,3 +1032,266 @@ h1 {
 .validator-list-table td:nth-child(3) { width: 30%; } /* stake */
 .validator-list-table th:nth-child(4),
 .validator-list-table td:nth-child(4) { width: 25%; } /* percentage */
+
+/* Update header responsive styles */
+@media (max-width: 768px) {
+  .details-container {
+    padding: 12px;
+  }
+
+  .details-header {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .header-content {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-right {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* Adjust text sizes */
+  h1 {
+    font-size: 1.1em;
+    margin: 0;
+  }
+
+  .chain-description {
+    margin-top: 12px;
+    width: 100%;
+    font-size: 0.85em;
+  }
+
+  /* Table container adjustments */
+  .validators-list {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Table adjustments */
+  .validators-table {
+    width: 100%;
+    font-size: 0.75em; /* Make font smaller */
+  }
+
+  /* Adjust column widths */
+  .validators-table th:nth-child(1),
+  .validators-table td:nth-child(1) { 
+    width: 40%; /* Node ID */
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .validators-table th:nth-child(2),
+  .validators-table td:nth-child(2) { 
+    width: 20%; /* Status */
+  }
+  
+  .validators-table th:nth-child(3),
+  .validators-table td:nth-child(3) { 
+    width: 20%; /* Uptime */
+  }
+  
+  .validators-table th:nth-child(4),
+  .validators-table td:nth-child(4) { 
+    width: 20%; /* Other */
+  }
+
+  /* Adjust cell padding */
+  .validators-table th,
+  .validators-table td {
+    padding: 8px 4px;
+    white-space: nowrap;
+  }
+
+  /* Node ID cell specific styling */
+  .node-id-cell {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Score badge adjustment */
+  .score {
+    padding: 4px 8px;
+    font-size: 0.8em;
+  }
+
+  /* Add Network button adjustment */
+  .add-network-btn {
+    padding: 6px 12px;
+    font-size: 0.85em;
+  }
+}
+
+@media (max-width: 768px) {
+  .validators-list {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .validators-table {
+    width: 100%;
+    table-layout: fixed; /* This is important for fixed widths */
+  }
+
+  /* Adjust column widths to fit mobile screen */
+  .validators-table th:nth-child(1),
+  .validators-table td:nth-child(1) { width: 30%; } /* Node ID */
+  
+  .validators-table th:nth-child(2),
+  .validators-table td:nth-child(2) { width: 20%; } /* Status */
+  
+  .validators-table th:nth-child(3),
+  .validators-table td:nth-child(3) { width: 20%; } /* Uptime */
+  
+  .validators-table th:nth-child(4),
+  .validators-table td:nth-child(4) { width: 30%; } /* Stake */
+
+  /* Make text smaller and prevent wrapping */
+  .validators-table th,
+  .validators-table td {
+    padding: 8px 4px;
+    font-size: 0.75em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Make card same width as header */
+  .detail-card {
+    width: 100%;
+    padding: 16px;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  /* Table container */
+  .validators-list {
+    width: 100%;
+    margin: 0 -16px; /* Negative margin to counter parent padding */
+    padding: 0 16px;
+    overflow-x: auto; /* Enable horizontal scroll */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  }
+
+  /* Table itself */
+  .validators-table {
+    min-width: 500px; /* Minimum width to show all data */
+    margin: 0;
+  }
+
+  /* Column widths for scrollable content */
+  .validators-table th:nth-child(1),
+  .validators-table td:nth-child(1) { min-width: 150px; } /* Node ID */
+  
+  .validators-table th:nth-child(2),
+  .validators-table td:nth-child(2) { min-width: 80px; } /* Status */
+  
+  .validators-table th:nth-child(3),
+  .validators-table td:nth-child(3) { min-width: 80px; } /* Uptime */
+  
+  .validators-table th:nth-child(4),
+  .validators-table td:nth-child(4) { min-width: 120px; } /* Stake */
+
+  /* Cell styling */
+  .validators-table th,
+  .validators-table td {
+    padding: 8px;
+    font-size: 0.85em;
+    white-space: nowrap;
+  }
+
+  /* Add subtle scrollbar */
+  .validators-list::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .validators-list::-webkit-scrollbar-track {
+    background: #2a2a2a;
+  }
+
+  .validators-list::-webkit-scrollbar-thumb {
+    background: #4a4a4a;
+    border-radius: 2px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Container adjustments */
+  .details-container {
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Make all cards match header width */
+  .details-header,
+  .detail-card,
+  .validator-info-card,
+  .stake-distribution-card {
+    width: 100%;
+    padding: 16px;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  /* Grid adjustments */
+  .cards-row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  /* Table container */
+  .validators-list {
+    width: calc(100% + 32px); /* Extend to match card edges */
+    margin: 0 -16px;
+    padding: 0 16px;
+    overflow-x: auto;
+  }
+
+  /* Table styling */
+  .validators-table {
+    min-width: 500px;
+    border-collapse: collapse;
+  }
+
+  /* Make text smaller on mobile */
+  .validators-table th,
+  .validators-table td {
+    padding: 8px;
+    font-size: 0.85em;
+    white-space: nowrap;
+  }
+
+  /* Stats display */
+  .active-validators-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    font-size: 0.9em;
+  }
+}
