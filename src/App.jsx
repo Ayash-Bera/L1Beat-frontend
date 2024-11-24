@@ -12,6 +12,7 @@ import './App.css'
 import HowItWorks from './components/HowItWorks/HowItWorks'
 import Bridge from './components/Bridge/Bridge'
 import { PoweredByAvalanche } from '@0xstt/builderkit';
+import ScrollToTop from './utils/ScrollToTop';
 
 
 // Define your chains
@@ -35,6 +36,10 @@ function App() {
     setIsSidebarOpen(!isSidebarOpen)
   }
 
+  const closeSidebar = () => {
+    setIsSidebarOpen(false)
+  }
+
   // Close sidebar when clicking outside
   const handleMainClick = () => {
     if (isSidebarOpen) {
@@ -44,9 +49,17 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="app">
-        <Header onMenuClick={toggleSidebar} />
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <Header 
+          isOpen={isSidebarOpen} 
+          toggleSidebar={toggleSidebar}
+          onClose={closeSidebar}
+        />
+        <Sidebar 
+          isOpen={isSidebarOpen} 
+          onClose={closeSidebar}
+        />
         <main className="main-content" onClick={handleMainClick}>
           <Routes>
             <Route path="/" element={<Dashboard />} />

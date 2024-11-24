@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import './Header.css'
 import logo from '../../assets/l1_logo_main_2.png'
 
-function Header({ onMenuClick }) {
+function Header({ isOpen, toggleSidebar, onClose }) {
   const navigate = useNavigate()
   const [prevScrollPos, setPrevScrollPos] = useState(window.pageYOffset)
   const [visible, setVisible] = useState(true)
@@ -31,6 +31,9 @@ function Header({ onMenuClick }) {
   }, [prevScrollPos])
 
   const handleLogoClick = () => {
+    if (window.innerWidth <= 768) {
+      onClose();
+    }
     setAnimateLogo(true)
     navigate('/')
     setTimeout(() => {
@@ -43,7 +46,7 @@ function Header({ onMenuClick }) {
       <div className="header-container">
         <button 
           className="mobile-menu-btn" 
-          onClick={onMenuClick}
+          onClick={toggleSidebar}
           aria-label="Toggle menu"
         >
           <div className="hamburger">

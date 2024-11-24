@@ -85,10 +85,7 @@ function BlockchainDetails() {
     [blockchain?.validators]
   );
 
-  // Add this useEffect to scroll to top on component mount
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+
 
   // Loading state
   if (isLoading) {
