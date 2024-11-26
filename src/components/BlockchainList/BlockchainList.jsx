@@ -9,19 +9,20 @@ function BlockchainList() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Set loading to false when blockchainData is available
     if (blockchainData && blockchainData.length > 0) {
       setIsLoading(false)
     }
   }, [blockchainData])
 
-  // Sort blockchains by score in descending order
-  const sortedBlockchains = [...blockchainData].sort((a, b) => b.score - a.score);
-
   const getActiveValidatorCount = (validators) => {
     if (!validators) return 0;
     return validators.filter(validator => validator.validationStatus === 'active').length;
   };
+
+  // Sort blockchains by score in descending order and filter out chains with no active validators
+  const sortedBlockchains = [...blockchainData]
+    .filter(chain => getActiveValidatorCount(chain.validators) > 0)
+    .sort((a, b) => b.score - a.score);
 
   const handleCardClick = (chainName) => {
     navigate(`/blockchain/${chainName.toLowerCase()}`)
