@@ -30,3 +30,12 @@ createRoot(document.getElementById('root')).render(
     </Web3Provider>
   </StrictMode>,
 )
+
+// Add this to handle theme color messages from service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data.type === 'THEME_COLOR') {
+      document.querySelector('meta[name="theme-color"]').content = event.data.color;
+    }
+  });
+}

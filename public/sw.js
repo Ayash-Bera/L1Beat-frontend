@@ -45,14 +45,26 @@ self.addEventListener('fetch', event => {
 // Clean up old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Set theme color
+      clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'THEME_COLOR',
+            color: '#242424'
+          });
+        });
+      })
+    ])
   );
 }); 
