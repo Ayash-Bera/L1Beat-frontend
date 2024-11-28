@@ -6,6 +6,7 @@ import logo from '../../assets/l1_logo_main_2_hat.png'
 function Sidebar({ isOpen, onClose, toggleSidebar }) {
   const navigate = useNavigate()
   const [animateLogo, setAnimateLogo] = useState(true)
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -31,6 +32,12 @@ function Sidebar({ isOpen, onClose, toggleSidebar }) {
     if (window.innerWidth <= 768) {
       onClose();
     }
+  };
+
+  const handleComingSoonClick = (e) => {
+    e.preventDefault();
+    setShowComingSoon(true);
+    setTimeout(() => setShowComingSoon(false), 2000);
   };
 
   return (
@@ -83,11 +90,14 @@ function Sidebar({ isOpen, onClose, toggleSidebar }) {
               </NavLink>
             </li>
             <li className="sidebar-item">
-              <div className="sidebar-link coming-soon-link">
+              <a 
+                href="#" 
+                className={`sidebar-link ${showComingSoon ? 'coming-soon' : ''}`}
+                onClick={handleComingSoonClick}
+              >
                 <span className="sidebar-icon">🔗</span>
-                Native Bridge
-                <span className="coming-soon-badge">Coming Soon</span>
-              </div>
+                {showComingSoon ? '🚀 Coming Soon!' : 'Native Bridge'}
+              </a>
             </li>
             <li className="sidebar-item">
               <NavLink 

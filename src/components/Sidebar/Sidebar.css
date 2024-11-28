@@ -201,42 +201,51 @@
 
 .coming-soon-link {
   position: relative;
-  cursor: not-allowed !important;
-  opacity: 0.8;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  color: #a0a0a0;
+  text-decoration: none;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .coming-soon-badge {
   position: absolute;
-  right: 8px;
-  background: linear-gradient(45deg, #f59e0b, #f97316);
+  right: 12px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
   color: white;
-  padding: 2px 8px;
-  border-radius: 8px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  animation: pulse 2s infinite;
-  line-height: 1.2;
-  top: 50%;
-  transform: translateY(-50%);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-@keyframes pulse {
-  0% {
-    opacity: 0.8;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-  50% {
+  to {
     opacity: 1;
-  }
-  100% {
-    opacity: 0.8;
+    transform: translateY(0);
   }
 }
 
+/* Hover effect for coming soon link */
 .coming-soon-link:hover {
-  transform: none !important;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.05);
+  transform: none;
+  opacity: 0.8;
 }
 
 /* Logo container with snow effect */
@@ -403,5 +412,28 @@
     height: 2px;
     background-color: #ffffff;
     transition: all 0.3s ease;
+  }
+}
+
+.sidebar-link.coming-soon {
+  background: linear-gradient(45deg, #f59e0b, #f97316);
+  animation: pulse 1.5s infinite;
+  cursor: not-allowed;
+  border: none;
+  color: white;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
   }
 }
