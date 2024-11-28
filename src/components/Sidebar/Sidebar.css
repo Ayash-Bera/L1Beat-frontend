@@ -37,8 +37,20 @@
   border-right: 1px solid #2a2a2a;
   z-index: 100;
   border-top-right-radius: 20px;
-  margin-top: 10px;
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.sidebar::before {
+  content: '';
+  position: fixed;
+  left: 0;
+  top: 60px;
+  bottom: 0;
+  width: 250px;
+  background-color: #1a1a1a;
+  z-index: -1;
 }
 
 .sidebar-menu {
