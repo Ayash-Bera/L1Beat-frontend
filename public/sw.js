@@ -17,27 +17,42 @@ self.addEventListener('install', event => {
 
 // Fetch resources
 self.addEventListener('fetch', event => {
+  // Only handle HTTP and HTTPS requests
+  if (!event.request.url.startsWith('http')) {
+    return; // Skip non-HTTP requests without responding
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Return cached version or fetch new
-        return response || fetch(event.request)
-          .then(response => {
-            // Check if we received a valid response
-            if(!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
+        if (response) {
+          return response; // Return cached response if found
+        }
 
-            // Clone the response
-            const responseToCache = response.clone();
+        // Clone the request because it can only be used once
+        const fetchRequest = event.request.clone();
 
+        return fetch(fetchRequest).then(response => {
+          // Check if valid response
+          if (!response || response.status !== 200) {
+            return response;
+          }
+
+          // Clone the response
+          const responseToCache = response.clone();
+
+          // Only cache HTTP(S) responses
+          if (event.request.url.startsWith('http')) {
             caches.open(CACHE_NAME)
               .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
+                cache.put(event.request, responseToCache)
+                  .catch(err => console.log('Cache put error:', err));
+              })
+              .catch(err => console.log('Cache open error:', err));
+          }
 
-            return response;
-          });
+          return response;
+        });
       })
   );
 });
