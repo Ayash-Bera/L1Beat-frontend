@@ -18,47 +18,8 @@
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
-}
-
-@keyframes logoAnimation {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px); /* Move up */
-  }
-  100% {
-    transform: translateY(0); /* Move back to original position */
-  }
-}
-
-@keyframes logoCoolAnimation {
-  0% {
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.1) rotate(5deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.logo img {
-  height: 40px;
-  width: auto;
-  transition: transform 0.3s ease;
-}
-
-.logo.animate img {
-  animation: logoCoolAnimation 1s ease;
 }
 
 .nav-list {

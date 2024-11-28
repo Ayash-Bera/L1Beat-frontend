@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { Web3Provider } from '@0xstt/builderkit'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { Analytics } from '@vercel/analytics/react'
-import Header from './components/Header/Header'
 import Sidebar from './components/Sidebar/Sidebar'
 import Dashboard from './components/Dashboard/Dashboard'
 import BlockchainDetails from './components/BlockchainDetails/BlockchainDetails'
@@ -40,27 +39,16 @@ function App() {
     setIsSidebarOpen(false)
   }
 
-  // Close sidebar when clicking outside
-  const handleMainClick = () => {
-    if (isSidebarOpen) {
-      setIsSidebarOpen(false)
-    }
-  }
-
   return (
     <Router>
       <ScrollToTop />
       <div className="app">
-        <Header 
-          isOpen={isSidebarOpen} 
-          toggleSidebar={toggleSidebar}
-          onClose={closeSidebar}
-        />
         <Sidebar 
           isOpen={isSidebarOpen} 
           onClose={closeSidebar}
+          toggleSidebar={toggleSidebar}
         />
-        <main className="main-content" onClick={handleMainClick}>
+        <main className="main-content">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/blockchain/:id" element={<BlockchainDetails />} />
@@ -71,7 +59,7 @@ function App() {
         </main>
         <SpeedInsights />
         <Analytics 
-          debug={import.meta.env.DEV} // Enable debug mode in development
+          debug={import.meta.env.DEV}
           mode={import.meta.env.DEV ? 'development' : 'production'}
         />
       </div>

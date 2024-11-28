@@ -29,28 +29,30 @@
 .sidebar {
   position: fixed;
   left: 0;
-  top: 60px; /* Height of header */
+  top: 20px;
   bottom: 0;
   width: 250px;
   background-color: #1a1a1a;
-  padding: 40px 20px 20px; /* Increased top padding */
+  padding: 20px;
   border-right: 1px solid #2a2a2a;
   z-index: 100;
-  border-top-right-radius: 20px;
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-  height: calc(100vh - 60px);
+  height: calc(100vh - 40px);
   overflow-y: auto;
+  margin: 0 0 20px 10px;
+  border-radius: 20px;
 }
 
 .sidebar::before {
   content: '';
   position: fixed;
-  left: 0;
-  top: 60px;
-  bottom: 0;
+  left: 10px;
+  top: 20px;
+  bottom: 20px;
   width: 250px;
   background-color: #1a1a1a;
   z-index: -1;
+  border-radius: 20px;
 }
 
 .sidebar-menu {
@@ -60,7 +62,7 @@
 }
 
 .sidebar-item {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .sidebar-link {
@@ -69,20 +71,26 @@
   padding: 12px 16px;
   color: #a0a0a0;
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: all 0.3s ease;
   font-size: 0.95rem;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-link:hover {
-  background-color: #2a2a2a;
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
   transform: translateX(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-link.active {
-  background-color: #2d2d69;
+  background: linear-gradient(135deg, #4a4a9c 0%, #2d2d69 100%);
   color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar-icon {
@@ -90,6 +98,7 @@
   font-size: 1.2em;
   width: 24px;
   text-align: center;
+  opacity: 0.9;
 }
 
 /* Add a title style */
@@ -102,16 +111,44 @@
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+  .mobile-menu-btn {
+    display: block;
+    position: fixed;
+    top: 12px;
+    left: 20px;
     background-color: #1a1a1a;
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
+    border-radius: 8px;
+    padding: 8px;
+    z-index: 102;
+  }
+
+  .sidebar {
+    transform: translateX(-110%);
+    transition: transform 0.3s ease;
+    margin: 40px 0 20px 0;
+    left: 0;
+    width: 80%;
+    max-width: 300px;
+  }
+
+  .sidebar::before {
+    top: 40px;
   }
 
   .sidebar.open {
     transform: translateX(0);
+  }
+
+  /* Style for the overlay when sidebar is open */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
   }
 }
 
@@ -166,8 +203,8 @@
   position: relative;
   cursor: not-allowed !important;
   opacity: 0.8;
-  pointer-events: none; /* This prevents all interactions */
-  padding-right: 75px !important; /* Add space for the badge */
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .coming-soon-badge {
@@ -175,29 +212,196 @@
   right: 8px;
   background: linear-gradient(45deg, #f59e0b, #f97316);
   color: white;
-  padding: 1px 6px;  /* Reduced padding */
-  border-radius: 8px;  /* Reduced border radius */
-  font-size: 0.6rem;  /* Smaller font size */
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.65rem;
   font-weight: 600;
-  animation: pulse 1.5s infinite;
-  line-height: 1.2;  /* Reduced line height */
-  top: 50%;  /* Center vertically */
-  transform: translateY(-50%);  /* Center vertically */
+  animation: pulse 2s infinite;
+  line-height: 1.2;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 @keyframes pulse {
   0% {
-    transform: scale(1);
+    opacity: 0.8;
   }
   50% {
-    transform: scale(1.05);
+    opacity: 1;
   }
   100% {
-    transform: scale(1);
+    opacity: 0.8;
   }
 }
 
 .coming-soon-link:hover {
   transform: none !important;
-  background-color: transparent !important;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Logo container with snow effect */
+.sidebar-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  cursor: pointer;
+  position: relative;
+  padding: 20px 0;
+}
+
+.sidebar-logo img {
+  height: 60px;
+  width: auto;
+  transition: transform 0.3s ease;
+  animation: floatLogo 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+/* Snow effect */
+.sidebar-logo::before,
+.sidebar-logo::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.sidebar-logo::before {
+  background-image: 
+    radial-gradient(4px 4px at 20% 30%, white 50%, transparent 50%),
+    radial-gradient(3px 3px at 40% 70%, white 50%, transparent 50%),
+    radial-gradient(4px 4px at 60% 80%, white 50%, transparent 50%),
+    radial-gradient(3px 3px at 80% 10%, white 50%, transparent 50%);
+  animation: snowfall 7s linear infinite;
+  opacity: 0.7;
+}
+
+.sidebar-logo::after {
+  background-image: 
+    radial-gradient(3px 3px at 30% 20%, white 50%, transparent 50%),
+    radial-gradient(4px 4px at 50% 60%, white 50%, transparent 50%),
+    radial-gradient(3px 3px at 70% 40%, white 50%, transparent 50%);
+  animation: snowfall 5s linear infinite;
+  opacity: 0.5;
+}
+
+/* Logo floating animation */
+@keyframes floatLogo {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(2deg);
+  }
+}
+
+/* Snowfall animation */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(100px);
+  }
+}
+
+/* Christmas lights effect */
+.sidebar-logo {
+  --light-color1: #ff0000;
+  --light-color2: #00ff00;
+  --light-color3: #0000ff;
+  --light-color4: #ffff00;
+}
+
+.sidebar-logo::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--light-color1) 0px 10px,
+    var(--light-color2) 10px 20px,
+    var(--light-color3) 20px 30px,
+    var(--light-color4) 30px 40px
+  );
+  filter: blur(1px);
+  animation: twinkle 1s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* When logo is clicked */
+.sidebar-logo.animate img {
+  animation: christmasWiggle 1s ease;
+}
+
+@keyframes christmasWiggle {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(-10deg) scale(1.1);
+  }
+  50% {
+    transform: rotate(8deg) scale(1.1);
+  }
+  75% {
+    transform: rotate(-6deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+/* Add hamburger menu styles */
+.mobile-menu-btn {
+  display: none; /* Hidden by default on desktop */
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 101;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block;
+    position: fixed;
+    top: 12px;
+    left: 20px;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    padding: 8px;
+    z-index: 102; /* Increased z-index to stay above sidebar */
+    margin-bottom: 20px; /* Add space below button */
+  }
+
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 20px;
+    height: 16px;
+  }
+
+  .hamburger span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+  }
 }
