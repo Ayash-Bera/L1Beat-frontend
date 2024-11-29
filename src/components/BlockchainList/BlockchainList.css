@@ -152,3 +152,15 @@
     transform: rotate(360deg);
   }
 }
+
+.tps-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.tps-timestamp {
+  font-size: 0.7rem;
+  color: #666;
+  margin-top: 2px;
+}

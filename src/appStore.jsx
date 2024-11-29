@@ -48,15 +48,7 @@ const useStore = create((set, get) => ({
   tvlData: [],
   
   // TPS Data
-  tpsData: [
-    { name: '1m', tps: 15 },
-    { name: '5m', tps: 18 },
-    { name: '15m', tps: 22 },
-    { name: '30m', tps: 20 },
-    { name: '1h', tps: 25 },
-    { name: '6h', tps: 30 },
-    { name: '24h', tps: 28 },
-  ],
+  tpsData: [],
   
   // Blockchain Data with detailed information
   blockchainData: [],
@@ -135,6 +127,7 @@ const useStore = create((set, get) => ({
       const API_URL = import.meta.env.VITE_API_URL;
       if (import.meta.env.DEV) console.log('Fetching from:', `${API_URL}/api/chains`);
       
+      // Fetch chain data
       const response = await fetch(`${API_URL}/api/chains`);
       
       if (!response.ok) {
@@ -145,14 +138,32 @@ const useStore = create((set, get) => ({
       
       const data = await response.json();
       
-      const transformedData = data.map(chain => ({
+      // Fetch TPS data for each chain
+      const chainsWithTps = await Promise.all(
+        data.map(async (chain) => {
+          try {
+            const tpsResponse = await fetch(`${API_URL}/api/chains/${chain.chainId}/tps/latest`);
+            const tpsData = await tpsResponse.json();
+            
+            return {
+              ...chain,
+              tps: tpsData.success ? tpsData.data : null
+            };
+          } catch (error) {
+            console.error(`Failed to fetch TPS for chain ${chain.chainId}:`, error);
+            return chain;
+          }
+        })
+      );
+      
+      const transformedData = chainsWithTps.map(chain => ({
         chainId: chain.chainId,
         name: chain.chainName,
         validators: chain.validators || [],
         validatorCount: chain.validators?.length || 0,
         tvl: 50000000000,
-        tps: 1000,
-        score: calculateScore(chain.validators || [], 50000000000, 1000),
+        tps: chain.tps || null, // Use the fetched TPS data
+        score: calculateScore(chain.validators || [], 50000000000, chain.tps?.value || 0),
         networkStats: {
           blockTime: "2s",
           finality: "2s",
@@ -180,10 +191,46 @@ const useStore = create((set, get) => ({
       }));
 
       set({ blockchainData: transformedData, isLoading: false });
+
+      // Fetch combined TPS data after blockchain data is loaded
+      await get().fetchCombinedTpsData();
+
       return transformedData;
     } catch (error) {
       console.error('Error fetching blockchain data:', error);
       set({ blockchainData: [], isLoading: false });
+      throw error;
+    }
+  },
+
+  // Add a new function to fetch TPS data for a specific chain
+  fetchChainTPS: async (chainId) => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${API_URL}/api/chains/${chainId}/tps/latest`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const tpsData = await response.json();
+      
+      if (!tpsData.success) {
+        throw new Error('Failed to fetch TPS data');
+      }
+
+      // Update the specific chain's TPS in the blockchainData
+      set((state) => ({
+        blockchainData: state.blockchainData.map(chain => 
+          chain.chainId === chainId 
+            ? { ...chain, tps: tpsData.data }
+            : chain
+        )
+      }));
+
+      return tpsData.data;
+    } catch (error) {
+      console.error(`Error fetching TPS data for chain ${chainId}:`, error);
       throw error;
     }
   },
@@ -216,6 +263,58 @@ const useStore = create((set, get) => ({
     } catch (error) {
       console.error('Error fetching TVL data:', error);
       set({ tvlData: [] });
+      throw error;
+    }
+  },
+
+  // Add new function to fetch and combine TPS data
+  fetchCombinedTpsData: async (days = 30) => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const chains = get().blockchainData;
+      
+      // Fetch TPS history for each chain
+      const allChainsData = await Promise.all(
+        chains.map(async (chain) => {
+          try {
+            const response = await fetch(`${API_URL}/api/chains/${chain.chainId}/tps/history?days=${days}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return data.data || [];
+          } catch (error) {
+            console.error(`Failed to fetch TPS history for chain ${chain.chainId}:`, error);
+            return [];
+          }
+        })
+      );
+
+      // Combine and aggregate TPS data
+      const timestampMap = new Map();
+
+      allChainsData.forEach(chainData => {
+        chainData.forEach(dataPoint => {
+          const existingValue = timestampMap.get(dataPoint.timestamp) || 0;
+          timestampMap.set(dataPoint.timestamp, existingValue + (dataPoint.value || 0));
+        });
+      });
+
+      // Convert to array and sort by timestamp
+      const combinedData = Array.from(timestampMap.entries())
+        .map(([timestamp, value]) => ({
+          timestamp,
+          value: parseFloat(value.toFixed(2))
+        }))
+        .sort((a, b) => a.timestamp - b.timestamp);
+
+      if (import.meta.env.DEV) {
+        console.log('Combined TPS data:', combinedData);
+      }
+
+      set({ tpsData: combinedData });
+      return combinedData;
+    } catch (error) {
+      console.error('Error fetching combined TPS data:', error);
+      set({ tpsData: [] });
       throw error;
     }
   },

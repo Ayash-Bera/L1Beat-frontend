@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import useStore from '../../appStore'
 import './BlockchainList.css'
 import { useState, useEffect } from 'react'
+import { formatDistanceToNow } from 'date-fns'
 
 function BlockchainList() {
   const navigate = useNavigate()
@@ -42,6 +43,15 @@ function BlockchainList() {
     return 'score score-low'
   }
 
+  const formatTps = (tpsData) => {
+    if (!tpsData || !tpsData.value) return 'N/A';
+    return (
+      <div className="tps-container">
+        <span className="stat-value">{parseFloat(tpsData.value).toFixed(2)}</span>
+      </div>
+    );
+  };
+
   return (
     <div className="data-list">
       <h2>Avalanche L1's Data</h2>
@@ -81,8 +91,8 @@ function BlockchainList() {
                   <span className="stat-value">{formatTVL(chain.tvl)}</span>
                 </div>
                 <div className="stat-item">
-                  <span className="stat-label">TPS</span>
-                  <span className="stat-value">{formatNumber(chain.tps)}</span>
+                  <span className="stat-label">Average TPS</span>
+                  {formatTps(chain.tps)}
                 </div>
               </div>
             </div>

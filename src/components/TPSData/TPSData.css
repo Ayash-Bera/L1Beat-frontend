@@ -29,7 +29,28 @@
   overflow-x: hidden;
 }
 
-/* Add media query */
+/* Custom tooltip styles */
+.custom-tooltip {
+  background-color: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.tooltip-date {
+  color: #a0a0a0;
+  margin: 0;
+  font-size: 12px;
+}
+
+.tooltip-value {
+  color: #82ca9d;
+  margin: 4px 0 0;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Media query */
 @media (max-width: 768px) {
   .tps-data {
     padding: 15px;
