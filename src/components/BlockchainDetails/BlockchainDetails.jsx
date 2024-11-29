@@ -259,15 +259,15 @@ function BlockchainDetails() {
               </div>
             </div>
             <div className="chart-wrapper">
-              <ResponsiveContainer width="100%" height={400}>
-                <PieChart>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                   <Pie
                     data={stakeDistribution}
-                    cx={200}
-                    cy={200}
+                    cx="50%"
+                    cy="50%"
                     labelLine={false}
-                    outerRadius={120}
-                    innerRadius={60}
+                    outerRadius="75%"
+                    innerRadius="40%"
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}

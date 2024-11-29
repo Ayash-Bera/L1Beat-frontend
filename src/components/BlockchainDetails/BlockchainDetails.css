@@ -240,6 +240,7 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0 15px;
 }
 
 .recharts-wrapper {
@@ -273,6 +274,7 @@ h1 {
 .recharts-pie-label-text {
   fill: #ffffff;
   font-weight: 500;
+  font-size: 14px;
 }
 
 .recharts-pie-label-line {
@@ -281,11 +283,14 @@ h1 {
 
 @media (max-width: 768px) {
   .chart-wrapper {
-    height: 400px;
+    height: 350px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
   }
 
-  .stake-summary {
-    grid-template-columns: 1fr;
+  .recharts-wrapper {
+    transform: scale(0.95);
   }
 }
 
