@@ -101,6 +101,16 @@ function Sidebar({ isOpen, onClose, toggleSidebar }) {
             </li>
             <li className="sidebar-item">
               <NavLink 
+                to="/acps" 
+                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                onClick={handleLinkClick}
+              >
+                <span className="sidebar-icon">📑</span>
+                ACPs
+              </NavLink>
+            </li>
+            <li className="sidebar-item">
+              <NavLink 
                 to="/how-it-works" 
                 className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                 onClick={handleLinkClick}

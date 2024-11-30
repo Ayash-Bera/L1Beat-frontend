@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { plugin as markdown } from 'vite-plugin-markdown'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -10,6 +11,13 @@ export default defineConfig(({ command, mode }) => {
   return {
     plugins: [
       react(),
+      markdown({
+        markdownIt: {
+          html: true,
+          linkify: true,
+          typographer: true
+        }
+      }),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
@@ -33,10 +41,11 @@ export default defineConfig(({ command, mode }) => {
         },
         workbox: {
           maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
-          globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,md}']
         }
       })
     ],
+    assetsInclude: ['**/*.md'],
     define: {
       'process.env.NODE_ENV': JSON.stringify(mode),
       'process.env.VITE_API_URL': JSON.stringify(
@@ -45,10 +54,14 @@ export default defineConfig(({ command, mode }) => {
           : 'http://localhost:5001'
       )
     },
+    server: {
+      historyApiFallback: true,
+    },
     preview: {
       port: 4173,
       strictPort: true,
       host: true,
+      historyApiFallback: true,
     },
     build: {
       sourcemap: isDevelopment,
