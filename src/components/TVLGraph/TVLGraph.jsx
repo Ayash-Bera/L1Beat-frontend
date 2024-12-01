@@ -10,6 +10,21 @@ function TVLGraph() {
     fetchTVLData();
   }, []);
 
+  const deduplicateByDate = (data) => {
+    const dateMap = new Map();
+    
+    data.forEach(entry => {
+      const date = new Date(entry.date * 1000).setHours(0, 0, 0, 0);
+      if (!dateMap.has(date) || dateMap.get(date).date < entry.date) {
+        dateMap.set(date, entry);
+      }
+    });
+
+    return Array.from(dateMap.values()).sort((a, b) => a.date - b.date);
+  };
+
+  const uniqueTVLData = tvlData ? deduplicateByDate(tvlData) : [];
+
   const formatTVL = (value) => {
     if (value >= 1000000000) {
       return `$${(value / 1000000000).toFixed(1)}B`
@@ -22,10 +37,14 @@ function TVLGraph() {
 
   const formatDate = (timestamp) => {
     const date = new Date(timestamp * 1000)
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit' 
+    }).split(',')[0]
   }
 
-  if (!tvlData || tvlData.length === 0) {
+  if (!uniqueTVLData || uniqueTVLData.length === 0) {
     return (
       <div className="tvl-graph">
         <div className="tvl-header">
@@ -41,13 +60,13 @@ function TVLGraph() {
       <div className="tvl-header">
         <h2>Total Value Locked(Just Avalanche C-Chain)</h2>
         <div className="tvl-current">
-          {formatTVL(tvlData[tvlData.length - 1].tvl)}
+          {formatTVL(uniqueTVLData[uniqueTVLData.length - 1]?.tvl)}
         </div>
       </div>
       <div className="graph-container">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart 
-            data={tvlData} 
+            data={uniqueTVLData} 
             margin={{ 
               top: 10, 
               right: 10, 
