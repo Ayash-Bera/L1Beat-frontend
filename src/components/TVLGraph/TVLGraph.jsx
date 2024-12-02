@@ -70,7 +70,7 @@ function TVLGraph() {
             margin={{ 
               top: 10, 
               right: 10, 
-              left: 0, 
+              left: 40, 
               bottom: 0 
             }}
           >
