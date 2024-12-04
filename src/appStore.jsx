@@ -162,8 +162,7 @@ const useStore = create((set, get) => ({
         validators: chain.validators || [],
         validatorCount: chain.validators?.length || 0,
         tvl: 50000000000,
-        tps: chain.tps || null, // Use the fetched TPS data
-        score: calculateScore(chain.validators || [], 50000000000, chain.tps?.value || 0),
+        score: calculateScore(chain.validators || [], 50000000000, 0),
         networkStats: {
           blockTime: "2s",
           finality: "2s",
@@ -192,7 +191,7 @@ const useStore = create((set, get) => ({
 
       set({ blockchainData: transformedData, isLoading: false });
 
-      // Fetch combined TPS data after blockchain data is loaded
+      // Fetch network TPS data after blockchain data is loaded
       await get().fetchCombinedTpsData();
 
       return transformedData;
@@ -203,34 +202,33 @@ const useStore = create((set, get) => ({
     }
   },
 
-  // Add a new function to fetch TPS data for a specific chain
-  fetchChainTPS: async (chainId) => {
+  // Replace fetchCombinedTpsData with new simplified version
+  fetchCombinedTpsData: async (days = 30) => {
     try {
       const API_URL = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${API_URL}/api/chains/${chainId}/tps/latest`);
+      const response = await fetch(`${API_URL}/api/tps/network/history`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const tpsData = await response.json();
+      const responseData = await response.json();
       
-      if (!tpsData.success) {
+      if (!responseData.success) {
         throw new Error('Failed to fetch TPS data');
       }
 
-      // Update the specific chain's TPS in the blockchainData
-      set((state) => ({
-        blockchainData: state.blockchainData.map(chain => 
-          chain.chainId === chainId 
-            ? { ...chain, tps: tpsData.data }
-            : chain
-        )
-      }));
+      const sortedData = responseData.data.sort((a, b) => a.timestamp - b.timestamp);
 
-      return tpsData.data;
+      if (import.meta.env.DEV) {
+        console.log('Network TPS data:', sortedData);
+      }
+
+      set({ tpsData: sortedData });
+      return sortedData;
     } catch (error) {
-      console.error(`Error fetching TPS data for chain ${chainId}:`, error);
+      console.error('Error fetching network TPS data:', error);
+      set({ tpsData: [] });
       throw error;
     }
   },
@@ -263,58 +261,6 @@ const useStore = create((set, get) => ({
     } catch (error) {
       console.error('Error fetching TVL data:', error);
       set({ tvlData: [] });
-      throw error;
-    }
-  },
-
-  // Add new function to fetch and combine TPS data
-  fetchCombinedTpsData: async (days = 30) => {
-    try {
-      const API_URL = import.meta.env.VITE_API_URL;
-      const chains = get().blockchainData;
-      
-      // Fetch TPS history for each chain
-      const allChainsData = await Promise.all(
-        chains.map(async (chain) => {
-          try {
-            const response = await fetch(`${API_URL}/api/chains/${chain.chainId}/tps/history?days=${days}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            return data.data || [];
-          } catch (error) {
-            console.error(`Failed to fetch TPS history for chain ${chain.chainId}:`, error);
-            return [];
-          }
-        })
-      );
-
-      // Combine and aggregate TPS data
-      const timestampMap = new Map();
-
-      allChainsData.forEach(chainData => {
-        chainData.forEach(dataPoint => {
-          const existingValue = timestampMap.get(dataPoint.timestamp) || 0;
-          timestampMap.set(dataPoint.timestamp, existingValue + (dataPoint.value || 0));
-        });
-      });
-
-      // Convert to array and sort by timestamp
-      const combinedData = Array.from(timestampMap.entries())
-        .map(([timestamp, value]) => ({
-          timestamp,
-          value: parseFloat(value.toFixed(2))
-        }))
-        .sort((a, b) => a.timestamp - b.timestamp);
-
-      if (import.meta.env.DEV) {
-        console.log('Combined TPS data:', combinedData);
-      }
-
-      set({ tpsData: combinedData });
-      return combinedData;
-    } catch (error) {
-      console.error('Error fetching combined TPS data:', error);
-      set({ tpsData: [] });
       throw error;
     }
   },

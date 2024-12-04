@@ -50,6 +50,12 @@
   font-size: 14px;
 }
 
+.tooltip-chains {
+  color: #a0a0a0;
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+
 /* Media query */
 @media (max-width: 768px) {
   .tps-data {
