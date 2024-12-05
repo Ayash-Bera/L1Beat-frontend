@@ -437,3 +437,37 @@
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
   }
 }
+
+/* Add these styles at the end of your CSS file */
+.social-links {
+  margin-top: auto;
+  padding: 20px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 24px;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: #a0a0a0;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.social-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transform: translateX(5px);
+}
+
+.social-icon {
+  margin-right: 12px;
+  font-size: 1.1em;
+  width: 24px;
+  text-align: center;
+  opacity: 0.9;
+}
