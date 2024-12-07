@@ -1,6 +1,6 @@
 <div align="center">
   <img src="/src/assets/l1_logo_main_2_hat.png" alt="L1Beat Logo" width="200"/>
-  <h1>L1Beat - Avalanche Subnet Analytics</h1>
+  <h1>L1Beat - Avalanche L1 Analytics</h1>
   <p>A comprehensive analytics platform for tracking and analyzing Avalanche L1s.</p>
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
