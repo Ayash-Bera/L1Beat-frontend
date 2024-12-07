@@ -14,12 +14,6 @@
 - [Live Demo](#live-demo)
 - [Technology Stack](#technology-stack)
 - [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [Scoring System](#scoring-system)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
-- [Acknowledgments](#acknowledgments)
 
 ## 🎯 About <a name="about"></a>
 L1Beat is a real-time analytics platform designed to provide insights into Avalanche L1s. It enables users to track key performance metrics, validator details, and economic indicators. 
