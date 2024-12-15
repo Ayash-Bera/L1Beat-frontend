@@ -1,48 +1,5 @@
 import { create } from 'zustand'
 
-const calculateScore = (validators, tvl, tps) => {
-  // First, strictly validate input and active validators
-  if (!Array.isArray(validators)) {
-    if (import.meta.env.DEV) console.log('Invalid validators array');
-    return 0;
-  }
-
-  // Filter for ACTIVE validators (with stake > 0 AND status === 'active')
-  const activeValidators = validators.filter(v => {
-    const stake = parseFloat(v.amountStaked);
-    const isActive = v.validationStatus === 'active';
-    return !isNaN(stake) && stake > 0 && isActive;  // Added active status check
-  });
-
-  // If no active validators, return 0
-  if (activeValidators.length === 0) {
-    if (import.meta.env.DEV) console.log('No active validators found');
-    return 0;
-  }
-
-  let score = 0;
-
-  // Has active validators: +20 points
-  score += 20;
-
-  // More than 5 active validators: +20 points
-  if (activeValidators.length > 5) {
-    score += 20;
-  }
-
-  // Exactly 10 active validators: set score to 85
-  if (activeValidators.length === 10) {
-    score = 85;
-  }
-
-  // More than 10 active validators: additional points
-  if (activeValidators.length > 10) {
-    score = 85 + Math.min((activeValidators.length - 10) / 90 * 15, 15);
-  }
-
-  return Math.min(Math.round(score), 100);
-};
-
 const useStore = create((set, get) => ({
   // TVL Data
   tvlData: [],
@@ -117,18 +74,13 @@ const useStore = create((set, get) => ({
     }
   })),
   fetchBlockchainData: async () => {
-    // Return existing data if already loaded
-    if (get().blockchainData.length > 0) {
-      return get().blockchainData;
-    }
-
     try {
       set({ isLoading: true });
       const API_URL = import.meta.env.VITE_API_URL;
-      if (import.meta.env.DEV) console.log('Fetching from:', `${API_URL}/api/chains`);
+      const timestamp = new Date().getTime();
       
-      // Fetch chain data
-      const response = await fetch(`${API_URL}/api/chains`);
+      // Fetch chain data with cache busting
+      const response = await fetch(`${API_URL}/api/chains?t=${timestamp}`);
       
       if (!response.ok) {
         const text = await response.text();
@@ -142,7 +94,7 @@ const useStore = create((set, get) => ({
       const chainsWithTps = await Promise.all(
         data.map(async (chain) => {
           try {
-            const tpsResponse = await fetch(`${API_URL}/api/chains/${chain.chainId}/tps/latest`);
+            const tpsResponse = await fetch(`${API_URL}/api/chains/${chain.chainId}/tps/latest?t=${timestamp}`);
             const tpsData = await tpsResponse.json();
             
             // Match the exact API response structure
@@ -191,7 +143,6 @@ const useStore = create((set, get) => ({
           validators: chain.validators || [],
           validatorCount: chain.validators?.length || 0,
           tvl: 50000000000,
-          score: calculateScore(chain.validators || [], 50000000000, 0),
           tps: chain.tps,
           networkStats: {
             blockTime: "2s",
@@ -241,7 +192,8 @@ const useStore = create((set, get) => ({
   fetchCombinedTpsData: async (days = 30) => {
     try {
       const API_URL = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${API_URL}/api/tps/network/history`);
+      const timestamp = new Date().getTime();
+      const response = await fetch(`${API_URL}/api/tps/network/history?t=${timestamp}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -272,7 +224,8 @@ const useStore = create((set, get) => ({
   fetchTVLData: async (days = 7) => {
     try {
       const API_URL = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${API_URL}/api/tvl/history/?days=${days}`);
+      const timestamp = new Date().getTime();
+      const response = await fetch(`${API_URL}/api/tvl/history/?days=${days}&t=${timestamp}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

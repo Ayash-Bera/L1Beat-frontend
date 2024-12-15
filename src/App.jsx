@@ -8,8 +8,8 @@ import BlockchainDetails from './components/BlockchainDetails/BlockchainDetails'
 import LaunchPad from './components/LaunchPad/LaunchPad'
 import ACPs from './components/ACPs/ACPs'
 import './App.css'
-import HowItWorks from './components/HowItWorks/HowItWorks'
 import Bridge from './components/Bridge/Bridge'
+import VotePopup from './components/VotePopup/VotePopup'
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -34,11 +34,11 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/blockchain/:id" element={<BlockchainDetails />} />
           <Route path="/launch" element={<LaunchPad />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/bridge" element={<Bridge />} />
           <Route path="/acps" element={<ACPs />} />
         </Routes>
       </main>
+      <VotePopup />
       <SpeedInsights />
       <Analytics 
         debug={import.meta.env.DEV}

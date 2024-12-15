@@ -20,10 +20,14 @@ function BlockchainList() {
     return validators.filter(validator => validator.validationStatus === 'active').length;
   };
 
-  // Sort blockchains by score in descending order and filter out chains with no active validators
+  // Sort blockchains by active validator count in descending order
   const sortedBlockchains = [...blockchainData]
     .filter(chain => getActiveValidatorCount(chain.validators) > 0)
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => {
+      const aValidators = getActiveValidatorCount(a.validators);
+      const bValidators = getActiveValidatorCount(b.validators);
+      return bValidators - aValidators;
+    });
 
   const handleCardClick = (chainName) => {
     navigate(`/blockchain/${chainName.toLowerCase()}`)
@@ -35,12 +39,6 @@ function BlockchainList() {
 
   const formatNumber = (num) => {
     return num.toLocaleString()
-  }
-
-  const getScoreClass = (score) => {
-    if (score >= 80) return 'score score-high'
-    if (score >= 50) return 'score score-medium'
-    return 'score score-low'
   }
 
   const formatTps = (tpsData) => {
@@ -92,9 +90,6 @@ function BlockchainList() {
                   className="chain-logo"
                 />
                 <h3>{chain.name}</h3>
-                <span className={getScoreClass(chain.score)}>
-                  Score: {chain.score}
-                </span>
               </div>
               <div className="card-content">
                 <div className="stat-item">

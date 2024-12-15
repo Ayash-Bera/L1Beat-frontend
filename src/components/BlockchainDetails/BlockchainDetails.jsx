@@ -4,6 +4,8 @@ import { useState, useEffect, useMemo } from 'react'
 import useStore from '../../appStore'
 import './BlockchainDetails.css'
 import copy from 'clipboard-copy';
+import ChainTPSGraph from '../ChainTPSGraph/ChainTPSGraph';
+import { Info } from 'lucide-react';
 
 // 1. Move helper functions outside of the component
 const calculateStakeDistribution = (validators) => {
@@ -155,9 +157,6 @@ function BlockchainDetails() {
                 className="chain-logo"
               />
               <h1>{blockchain.name}</h1>
-              <span className={`score score-${blockchain.score >= 80 ? 'high' : blockchain.score >= 50 ? 'medium' : 'low'}`}>
-                Score: {blockchain.score}
-              </span>
             </div>
             <div className="header-right">
               <a href={blockchain.explorerUrl} target="_blank" rel="noopener noreferrer">
@@ -345,8 +344,20 @@ function BlockchainDetails() {
         </div>
 
         <div className="cards-row bottom-row">
+          <div className="detail-card full-width">
+            <ChainTPSGraph chainId={blockchain.chainId} />
+          </div>
+
           <div className="detail-card">
-            <h3>Network Statistics</h3>
+            <div className="card-header-with-info">
+              <h3>Network Statistics</h3>
+              <div className="info-tooltip">
+                <Info size={16} />
+                <span className="tooltip-text">
+                  Note: This data is currently for demonstration purposes. Real-time network statistics will be available soon.
+                </span>
+              </div>
+            </div>
             <div className="detail-content">
               <p>Block Time: {blockchain.networkStats.blockTime}</p>
               <p>Finality: {blockchain.networkStats.finality}</p>
@@ -357,7 +368,15 @@ function BlockchainDetails() {
           </div>
 
           <div className="detail-card">
-            <h3>Economics</h3>
+            <div className="card-header-with-info">
+              <h3>Economics</h3>
+              <div className="info-tooltip">
+                <Info size={16} />
+                <span className="tooltip-text">
+                  Note: This data is currently for demonstration purposes. Real economic data will be available soon.
+                </span>
+              </div>
+            </div>
             <div className="detail-content">
               <p>Market Cap: ${blockchain.economics.marketCap}</p>
               <p>Circulating Supply: {blockchain.economics.circulatingSupply}</p>

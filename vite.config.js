@@ -56,6 +56,9 @@ export default defineConfig(({ command, mode }) => {
     },
     server: {
       historyApiFallback: true,
+      headers: {
+        'Cache-Control': 'no-store',
+      },
     },
     preview: {
       port: 4173,
@@ -75,7 +78,10 @@ export default defineConfig(({ command, mode }) => {
               '@0xstt/builderkit'
             ],
             charts: ['recharts']
-          }
+          },
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]',
         }
       },
       chunkSizeWarningLimit: 3000

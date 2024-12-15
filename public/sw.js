@@ -1,4 +1,4 @@
-const CACHE_NAME = 'l1beat-v1';
+const CACHE_NAME = 'l1beat-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -9,6 +9,9 @@ const urlsToCache = [
 
 // Install service worker
 self.addEventListener('install', event => {
+  // Immediately activate the new service worker
+  self.skipWaiting();
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
@@ -19,45 +22,59 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   // Only handle HTTP and HTTPS requests
   if (!event.request.url.startsWith('http')) {
-    return; // Skip non-HTTP requests without responding
+    return;
   }
 
+  // For API requests, use Network First strategy
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // Clone the response
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // For other requests, use Cache First strategy
   event.respondWith(
     caches.match(event.request)
       .then(response => {
         if (response) {
-          return response; // Return cached response if found
+          // Even if we have a cache, try to update it in the background
+          fetch(event.request)
+            .then(networkResponse => {
+              caches.open(CACHE_NAME)
+                .then(cache => {
+                  cache.put(event.request, networkResponse);
+                });
+            });
+          return response;
         }
 
-        // Clone the request because it can only be used once
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then(response => {
-          // Check if valid response
-          if (!response || response.status !== 200) {
-            return response;
-          }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          // Only cache HTTP(S) responses
-          if (event.request.url.startsWith('http')) {
+        return fetch(event.request)
+          .then(response => {
+            const responseToCache = response.clone();
             caches.open(CACHE_NAME)
               .then(cache => {
-                cache.put(event.request, responseToCache)
-                  .catch(err => console.log('Cache put error:', err));
-              })
-              .catch(err => console.log('Cache open error:', err));
-          }
-
-          return response;
-        });
+                cache.put(event.request, responseToCache);
+              });
+            return response;
+          });
       })
   );
 });
 
-// Clean up old caches
+// Clean up old caches and claim clients immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
     Promise.all([
@@ -71,6 +88,8 @@ self.addEventListener('activate', event => {
           })
         );
       }),
+      // Claim any clients immediately
+      clients.claim(),
       // Set theme color
       clients.matchAll().then(clients => {
         clients.forEach(client => {

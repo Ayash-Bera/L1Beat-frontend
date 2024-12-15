@@ -109,18 +109,21 @@ function Sidebar({ isOpen, onClose, toggleSidebar }) {
                 ACPs
               </NavLink>
             </li>
-            <li className="sidebar-item">
-              <NavLink 
-                to="/how-it-works" 
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={handleLinkClick}
-              >
-                <span className="sidebar-icon">ℹ️</span>
-                How Scoring System Works?
-              </NavLink>
-            </li>
           </ul>
           
+          <div className="vote-section">
+            <a 
+              href="https://retro9000.avax.network/discover-builders/cm3wzqhj8006gcc6ce6h9yuhi" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="vote-button"
+            >
+              <span className="vote-icon">🗳️</span>
+              Vote for L1Beat
+              <span className="vote-badge">Retro9000</span>
+            </a>
+          </div>
+
           <div className="social-links">
             <a href="https://x.com/l1beat_io" target="_blank" rel="noopener noreferrer" className="social-link">
               <span className="social-icon">𝕏</span>

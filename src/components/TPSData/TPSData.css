@@ -8,8 +8,20 @@
 .tps-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.refresh-info {
+  font-size: 0.8rem;
+  color: #888;
+  font-style: italic;
 }
 
 .tps-header h2 {
