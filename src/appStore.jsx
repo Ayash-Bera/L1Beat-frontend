@@ -145,49 +145,84 @@ const useStore = create((set, get) => ({
             const tpsResponse = await fetch(`${API_URL}/api/chains/${chain.chainId}/tps/latest`);
             const tpsData = await tpsResponse.json();
             
-            return {
-              ...chain,
-              tps: tpsData.success ? tpsData.data : null
-            };
+            // Match the exact API response structure
+            if (tpsData.success && tpsData.data && typeof tpsData.data.value === 'number') {
+              return {
+                ...chain,
+                tps: {
+                  value: tpsData.data.value,
+                  timestamp: tpsData.data.timestamp
+                }
+              };
+            } else {
+              if (import.meta.env.DEV) {
+                console.log(`No valid TPS data for chain ${chain.chainId}:`, tpsData);
+              }
+              return {
+                ...chain,
+                tps: { value: null, timestamp: null }
+              };
+            }
           } catch (error) {
             console.error(`Failed to fetch TPS for chain ${chain.chainId}:`, error);
-            return chain;
+            return {
+              ...chain,
+              tps: { value: null, timestamp: null }
+            };
           }
         })
       );
       
-      const transformedData = chainsWithTps.map(chain => ({
-        chainId: chain.chainId,
-        name: chain.chainName,
-        validators: chain.validators || [],
-        validatorCount: chain.validators?.length || 0,
-        tvl: 50000000000,
-        score: calculateScore(chain.validators || [], 50000000000, 0),
-        networkStats: {
-          blockTime: "2s",
-          finality: "2s",
-          networkUsage: "65%",
-          stakeRequirement: "2,000 AVAX",
-          uptime: "99.9%"
-        },
-        economics: {
-          marketCap: "500M",
-          circulatingSupply: chain.networkToken?.description || "N/A",
-          totalSupply: "250M",
-          stakingAPR: "8.5%"
-        },
-        stakeDistribution: [
-          { name: "Top 1-10", value: 35, fill: "#8884d8" },
-          { name: "Top 11-50", value: 30, fill: "#82ca9d" },
-          { name: "Top 51-100", value: 20, fill: "#ffc658" },
-          { name: "Others", value: 15, fill: "#ff8042" }
-        ],
-        description: chain.description,
-        explorerUrl: chain.explorerUrl,
-        rpcUrl: chain.rpcUrl,
-        networkToken: chain.networkToken,
-        chainLogoUri: chain.chainLogoUri
-      }));
+      if (import.meta.env.DEV) {
+        console.log('Chains with TPS before transformation:', chainsWithTps);
+      }
+
+      const transformedData = chainsWithTps.map(chain => {
+        if (import.meta.env.DEV) {
+          console.log(`Processing chain ${chain.chainName}:`, {
+            originalTps: chain.tps,
+            chainId: chain.chainId
+          });
+        }
+        
+        return ({
+          chainId: chain.chainId,
+          name: chain.chainName,
+          validators: chain.validators || [],
+          validatorCount: chain.validators?.length || 0,
+          tvl: 50000000000,
+          score: calculateScore(chain.validators || [], 50000000000, 0),
+          tps: chain.tps,
+          networkStats: {
+            blockTime: "2s",
+            finality: "2s",
+            networkUsage: "65%",
+            stakeRequirement: "2,000 AVAX",
+            uptime: "99.9%"
+          },
+          economics: {
+            marketCap: "500M",
+            circulatingSupply: chain.networkToken?.description || "N/A",
+            totalSupply: "250M",
+            stakingAPR: "8.5%"
+          },
+          stakeDistribution: [
+            { name: "Top 1-10", value: 35, fill: "#8884d8" },
+            { name: "Top 11-50", value: 30, fill: "#82ca9d" },
+            { name: "Top 51-100", value: 20, fill: "#ffc658" },
+            { name: "Others", value: 15, fill: "#ff8042" }
+          ],
+          description: chain.description,
+          explorerUrl: chain.explorerUrl,
+          rpcUrl: chain.rpcUrl,
+          networkToken: chain.networkToken,
+          chainLogoUri: chain.chainLogoUri
+        });
+      });
+
+      if (import.meta.env.DEV) {
+        console.log('Transformed data:', transformedData);
+      }
 
       set({ blockchainData: transformedData, isLoading: false });
 

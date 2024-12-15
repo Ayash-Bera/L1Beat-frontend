@@ -44,10 +44,25 @@ function BlockchainList() {
   }
 
   const formatTps = (tpsData) => {
-    if (!tpsData || !tpsData.value) return 'N/A';
+    if (import.meta.env.DEV) {
+      console.log('Formatting TPS Data for chain:', tpsData);
+    }
+    
+    // Check for valid number in tpsData.value
+    if (!tpsData || !tpsData.value || typeof tpsData.value !== 'number') {
+      if (import.meta.env.DEV) {
+        console.log('Invalid TPS data:', {
+          tpsData,
+          hasValue: tpsData?.value !== undefined,
+          valueType: tpsData?.value ? typeof tpsData.value : 'undefined'
+        });
+      }
+      return 'N/A';
+    }
+    
     return (
       <div className="tps-container">
-        <span className="stat-value">{parseFloat(tpsData.value).toFixed(2)}</span>
+        <span className="stat-value">{tpsData.value.toFixed(2)}</span>
       </div>
     );
   };
