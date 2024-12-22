@@ -18,9 +18,49 @@ function ChainTPSGraph({ chainId }) {
         }
         
         const data = await response.json();
-        if (data.success && Array.isArray(data.data)) {
-          const sortedData = [...data.data].sort((a, b) => a.timestamp - b.timestamp);
-          setTpsHistory(sortedData);
+        console.log(`Raw TPS history response for chain ${chainId}:`, data);
+
+        if (data.success) {
+          let sortedData;
+          
+          // Handle both single point and historical data formats
+          if (Array.isArray(data.data)) {
+            sortedData = [...data.data].sort((a, b) => a.timestamp - b.timestamp);
+          } else if (data.data && typeof data.data.value === 'number') {
+            sortedData = [{
+              timestamp: data.data.timestamp,
+              value: data.data.value
+            }];
+          } else {
+            console.error('Unexpected data format:', data);
+            return;
+          }
+          
+          // Data freshness check
+          const latestTimestamp = sortedData[sortedData.length - 1]?.timestamp;
+          const currentTime = Math.floor(Date.now() / 1000);
+          const dataAge = currentTime - latestTimestamp;
+          const hoursOld = dataAge / 3600;
+          
+          // Always log data age
+          console.warn(`Chain ${chainId} data age check:`, {
+            chainName: data.chainName,
+            latestDataTime: new Date(latestTimestamp * 1000).toISOString(),
+            currentTime: new Date(currentTime * 1000).toISOString(),
+            hoursOld: hoursOld.toFixed(1)
+          });
+
+          // Explicitly warn if data is more than 24 hours old
+          if (hoursOld > 24) {
+            console.error(`WARNING: Chain ${chainId} data is ${hoursOld.toFixed(1)} hours old!`);
+          }
+          
+          const processedData = sortedData.map(item => ({
+            ...item,
+            timestamp: item.timestamp * 1000
+          }));
+          
+          setTpsHistory(processedData);
         }
       } catch (error) {
         console.error('Error fetching chain TPS history:', error);
@@ -57,7 +97,15 @@ function ChainTPSGraph({ chainId }) {
     <div className="chain-tps-graph">
       <div className="graph-header">
         <h3>Transaction Per Second</h3>
-        <div className="refresh-info">Data refreshes every 24 hours</div>
+        <div className="refresh-info">
+          Data refreshes every 24 hours
+          {import.meta.env.DEV && (
+            <div style={{fontSize: '12px', color: '#666'}}>
+              Points: {tpsHistory.length}, 
+              Latest: {tpsHistory.length > 0 ? tpsHistory[tpsHistory.length-1].value.toFixed(2) : 'N/A'} TPS
+            </div>
+          )}
+        </div>
       </div>
       <div className="graph-container">
         <ResponsiveContainer width="100%" height={300}>

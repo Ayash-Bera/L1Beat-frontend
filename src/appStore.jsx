@@ -79,7 +79,8 @@ const useStore = create((set, get) => ({
       const API_URL = import.meta.env.VITE_API_URL;
       const timestamp = new Date().getTime();
       
-      // Fetch chain data with cache busting
+      // Debug logs and fetch chain data
+      console.log('Fetching from API URL:', API_URL);
       const response = await fetch(`${API_URL}/api/chains?t=${timestamp}`);
       
       if (!response.ok) {
@@ -89,6 +90,7 @@ const useStore = create((set, get) => ({
       }
       
       const data = await response.json();
+      console.log('Initial chains data:', data);
       
       // Fetch TPS data for each chain
       const chainsWithTps = await Promise.all(
@@ -97,7 +99,31 @@ const useStore = create((set, get) => ({
             const tpsResponse = await fetch(`${API_URL}/api/chains/${chain.chainId}/tps/latest?t=${timestamp}`);
             const tpsData = await tpsResponse.json();
             
-            // Match the exact API response structure
+            // Check for stale data
+            if (tpsData.success && tpsData.data && typeof tpsData.data.timestamp === 'number') {
+              const currentTime = Math.floor(Date.now() / 1000);
+              const dataAge = currentTime - tpsData.data.timestamp;
+              const hoursOld = dataAge / 3600;
+              
+              console.warn(`Chain ${chain.chainName} TPS data age:`, {
+                chainId: chain.chainId,
+                latestDataTime: new Date(tpsData.data.timestamp * 1000).toISOString(),
+                currentTime: new Date(currentTime * 1000).toISOString(),
+                hoursOld: hoursOld.toFixed(1)
+              });
+
+              if (hoursOld > 24) {
+                console.error(`WARNING: ${chain.chainName} (${chain.chainId}) TPS data is ${hoursOld.toFixed(1)} hours old!`);
+              }
+            }
+            
+            console.log(`Chain ${chain.chainName} TPS response:`, {
+              chainId: chain.chainId,
+              responseStatus: tpsResponse.status,
+              tpsData,
+              isValid: tpsData.success && tpsData.data && typeof tpsData.data.value === 'number'
+            });
+
             if (tpsData.success && tpsData.data && typeof tpsData.data.value === 'number') {
               return {
                 ...chain,
@@ -107,9 +133,6 @@ const useStore = create((set, get) => ({
                 }
               };
             } else {
-              if (import.meta.env.DEV) {
-                console.log(`No valid TPS data for chain ${chain.chainId}:`, tpsData);
-              }
               return {
                 ...chain,
                 tps: { value: null, timestamp: null }
