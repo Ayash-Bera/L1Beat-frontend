@@ -58,7 +58,7 @@ function TVLGraph() {
   return (
     <div className="tvl-graph">
       <div className="tvl-header">
-        <h2>Total Value Locked(Just Avalanche C-Chain)</h2>
+        <h2>Total Value Locked(Avalanche C-Chain)</h2>
         <div className="tvl-current">
           {formatTVL(uniqueTVLData[uniqueTVLData.length - 1]?.tvl)}
         </div>

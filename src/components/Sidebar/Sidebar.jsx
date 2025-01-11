@@ -155,6 +155,11 @@ function Sidebar({ isOpen, onClose, toggleSidebar }) {
               Email
             </a>
           </div>
+
+          <div className="alpha-warning">
+            <div className="warning-icon">⚠️</div>
+            <p>L1Beat is currently in alpha. Some data might be inaccurate or incomplete.</p>
+          </div>
         </nav>
       </div>
     </>

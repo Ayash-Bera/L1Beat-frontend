@@ -10,56 +10,6 @@ const useStore = create((set, get) => ({
   // Blockchain Data with detailed information
   blockchainData: [],
 
-  // Historical Data
-  historicalData: {
-    validators: {
-      "Dexalot": [
-        { date: '2024-03-01', count: 850000 },
-        { date: '2024-03-07', count: 874523 }
-      ],
-      "GUN": [
-        { date: '2024-03-01', count: 1700 },
-        { date: '2024-03-07', count: 1763 }
-      ],
-      "Avalanche": [
-        { date: '2024-03-01', count: 1200000 },
-        { date: '2024-03-07', count: 1250000 }
-      ],
-      "Ethereum": [
-        { date: '2024-03-01', count: 925000 },
-        { date: '2024-03-07', count: 945000 }
-      ],
-      "Solana": [
-        { date: '2024-03-01', count: 2000 },
-        { date: '2024-03-07', count: 2100 }
-      ]
-    },
-    tps: {
-      "Dexalot": [
-        { date: '2024-03-01', value: 10.2 },
-        { date: '2024-03-07', value: 12.5 }
-      ],
-      "GUN": [
-        { date: '2024-03-01', value: 2500 },
-        { date: '2024-03-07', value: 2843 }
-      ],
-      "Avalanche": [
-        { date: '2024-03-01', value: 4200 },
-        { date: '2024-03-07', value: 4500 }
-      ],
-      "Ethereum": [
-        { date: '2024-03-01', value: 28 },
-        { date: '2024-03-07', value: 30 }
-      ],
-      "Solana": [
-        { date: '2024-03-01', value: 62000 },
-        { date: '2024-03-07', value: 65000 }
-      ]
-    }
-  },
-
-  // Network Status
-
   // Actions
   updateTVLData: (newData) => set({ tvlData: newData }),
   updateTPSData: (newData) => set({ tpsData: newData }),

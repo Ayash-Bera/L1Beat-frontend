@@ -59,6 +59,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  font-size: var(--font-size-base);
 }
 
 .sidebar-item {
@@ -73,7 +74,8 @@
   text-decoration: none;
   border-radius: 12px;
   transition: all 0.3s ease;
-  font-size: 0.95rem;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   margin-bottom: 8px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -526,5 +528,39 @@
 @media (max-width: 768px) {
   .vote-section {
     margin: 16px;
+  }
+}
+
+/* Add these styles at the end of your Sidebar.css file */
+
+.alpha-warning {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(255, 183, 77, 0.1);
+  border: 1px solid rgba(255, 183, 77, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: var(--font-size-sm);
+  color: #FFB74D;
+}
+
+.alpha-warning .warning-icon {
+  font-size: var(--font-size-xl);
+  line-height: 1;
+}
+
+.alpha-warning p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+  color: #FFB74D;
+  font-weight: var(--font-weight-medium);
+}
+
+@media (max-width: 768px) {
+  .alpha-warning {
+    margin: 16px;
+    padding: 12px;
   }
 }

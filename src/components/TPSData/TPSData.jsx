@@ -42,7 +42,7 @@ function TPSData() {
     <div className="tps-data">
       <div className="tps-header">
         <div className="header-content">
-          <h2>Transactions Per Second (Last 7 Days)</h2>
+          <h2>Transactions Per Second </h2>
           <div className="refresh-info">
             Data refreshes every 24 hours
           </div>
