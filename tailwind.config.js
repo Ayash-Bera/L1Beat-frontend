@@ -1,25 +1,28 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue', 'sans-serif'],
+      colors: {
+        dark: {
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
+          950: '#020617'
+        }
       },
-      fontSize: {
-        'xs': 'var(--font-size-xs)',
-        'sm': 'var(--font-size-sm)',
-        'base': 'var(--font-size-base)',
-        'lg': 'var(--font-size-lg)',
-        'xl': 'var(--font-size-xl)',
-        '2xl': 'var(--font-size-2xl)',
-        '3xl': 'var(--font-size-3xl)',
-      },
+      backgroundImage: {
+        'dark-gradient': 'linear-gradient(to bottom right, var(--tw-gradient-stops))',
+      }
     },
   },
   plugins: [],
-}
-
+};
