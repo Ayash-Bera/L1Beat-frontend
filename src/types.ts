@@ -61,3 +61,20 @@ export interface HealthStatus {
   status: string;
   timestamp: number;
 }
+
+// Teleporter message types
+export interface TeleporterMessage {
+  source: string;
+  target: string;
+  count: number;
+}
+
+export interface TeleporterMessageData {
+  messages: TeleporterMessage[];
+  metadata: {
+    totalMessages: number;
+    startDate: string;
+    endDate: string;
+    updatedAt: string;
+  };
+}

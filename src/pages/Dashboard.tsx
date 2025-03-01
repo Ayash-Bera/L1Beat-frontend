@@ -5,8 +5,10 @@ import { ChainCard } from '../components/ChainCard';
 import { StatusBar } from '../components/StatusBar';
 import { TVLChart } from '../components/TVLChart';
 import { TPSChart } from '../components/TPSChart';
+import { TeleporterSankeyDiagram } from '../components/TeleporterSankeyDiagram';
+import { NetworkTopologyGraph } from '../components/NetworkTopologyGraph';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { LayoutGrid, Activity } from 'lucide-react';
+import { LayoutGrid, Activity, Network } from 'lucide-react';
 
 export function Dashboard() {
   const [chains, setChains] = useState<Chain[]>([]);
@@ -24,7 +26,7 @@ export function Dashboard() {
         getHealth()
       ]);
       
-      // Filter chains with less than 1 validator
+      // Filter chains with at least 1 validator
       const filteredChains = chainsData.filter(chain => 
         chain.validators && chain.validators.length >= 1
       );
@@ -98,12 +100,28 @@ export function Dashboard() {
       <StatusBar health={health} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
+        {/* TVL Chart commented out due to backend issues */}
+        {/* <div className="mb-8">
           <TVLChart />
-        </div>
+        </div> */}
 
-        <div className="mb-8">
+        {/* Network-wide TPS Chart commented out due to backend issues */}
+        {/* <div className="mb-8">
           <TPSChart />
+        </div> */}
+        
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Network className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Avalanche Interchain Messaging
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <NetworkTopologyGraph />
+            <TeleporterSankeyDiagram />
+          </div>
         </div>
 
         <div className="mb-8">

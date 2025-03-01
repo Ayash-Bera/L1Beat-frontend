@@ -1,4 +1,4 @@
-import type { Chain, TVLHistory, TVLHealth, NetworkTPS, TPSHistory, HealthStatus } from './types';
+import type { Chain, TVLHistory, TVLHealth, NetworkTPS, TPSHistory, HealthStatus, TeleporterMessageData } from './types';
 import { config } from './config';
 
 // Add caching layer for API responses
@@ -128,6 +128,15 @@ function getFallbackData<T>(): T {
     HealthStatus: {
       status: 'unknown',
       timestamp: Date.now()
+    },
+    TeleporterMessageData: {
+      messages: [],
+      metadata: {
+        totalMessages: 0,
+        startDate: new Date().toISOString(),
+        endDate: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
     }
   };
 
@@ -308,4 +317,42 @@ export async function getHealth(): Promise<HealthStatus> {
       };
     }
   }, 30000); // Cache for 30 seconds
+}
+
+export async function getTeleporterMessages(): Promise<TeleporterMessageData> {
+  return fetchWithCache('teleporter-messages', async () => {
+    try {
+      const response = await fetchWithRetry<any>(`${API_URL}/teleporter/messages/daily-count`);
+      
+      if (!response || !Array.isArray(response.messages)) {
+        throw new Error('Invalid Teleporter message data format');
+      }
+      
+      return {
+        messages: response.messages.map((msg: any) => ({
+          source: msg.source,
+          target: msg.target,
+          count: Number(msg.count)
+        })),
+        metadata: {
+          totalMessages: response.metadata?.totalMessages || 
+            response.messages.reduce((sum: number, msg: any) => sum + Number(msg.count), 0),
+          startDate: response.metadata?.startDate || new Date().toISOString(),
+          endDate: response.metadata?.endDate || new Date().toISOString(),
+          updatedAt: response.metadata?.updatedAt || new Date().toISOString()
+        }
+      };
+    } catch (error) {
+      console.error('Teleporter messages fetch error:', error);
+      return {
+        messages: [],
+        metadata: {
+          totalMessages: 0,
+          startDate: new Date().toISOString(),
+          endDate: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      };
+    }
+  }, 15 * 60 * 1000); // Cache for 15 minutes
 }
