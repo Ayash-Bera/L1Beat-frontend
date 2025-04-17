@@ -230,3 +230,22 @@
     transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
+
+/* Add these rules at the end of your CSS file */
+body[data-theme="dark"] .node-label {
+  fill: #ffffff !important;
+}
+
+body[data-theme="light"] .node-label {
+  fill: #000000 !important;
+}
+
+body[data-theme="dark"] .value-label,
+body[data-theme="dark"] .diagram-title {
+  fill: rgba(226, 232, 240, 0.7) !important;
+}
+
+body[data-theme="light"] .value-label,
+body[data-theme="light"] .diagram-title {
+  fill: rgba(30, 41, 59, 0.7) !important;
+}

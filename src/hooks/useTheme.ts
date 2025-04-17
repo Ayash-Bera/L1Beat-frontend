@@ -21,10 +21,17 @@ export function useTheme() {
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
     localStorage.setItem('theme', theme);
+    
+    // Dispatch a custom event for components that need to know about theme changes
+    const event = new CustomEvent('themeChanged', { detail: { theme } });
+    window.dispatchEvent(event);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    setTheme(prev => {
+      const newTheme = prev === 'dark' ? 'light' : 'dark';
+      return newTheme;
+    });
   };
 
   return { theme, toggleTheme };
