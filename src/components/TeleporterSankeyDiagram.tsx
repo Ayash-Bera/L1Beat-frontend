@@ -6,6 +6,9 @@ import { RefreshCw, AlertTriangle, MessageSquare, ArrowUpDown, Activity, Clock }
 import { useTheme } from '../hooks/useTheme';
 import { useNavigate } from 'react-router-dom';
 
+// Get API base URL from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+
 interface TeleporterMessage {
   source: string;
   target: string;
@@ -236,8 +239,8 @@ export function TeleporterSankeyDiagram() {
       
       // Use the appropriate endpoint based on the selected timeframe
       const endpoint = timeframe === 'daily' 
-        ? 'https://backend-phi-green.vercel.app/api/teleporter/messages/daily-count'
-        : 'https://backend-phi-green.vercel.app/api/teleporter/messages/weekly-count';
+        ? `${API_BASE_URL}/api/teleporter/messages/daily-count`
+        : `${API_BASE_URL}/api/teleporter/messages/weekly-count`;
       
       const response = await fetch(endpoint);
       
