@@ -26,12 +26,26 @@ export function Dashboard() {
         getHealth()
       ]);
       
-      // Filter chains with at least 1 validator
+      // Filter chains with at least 1 validator, but always include Avalanche chains
       const filteredChains = chainsData.filter(chain => 
-        chain.validators && chain.validators.length >= 1
+        // Include chains with validators
+        (chain.validators && chain.validators.length >= 1) ||
+        // OR include any Avalanche chain regardless of validators
+        chain.chainName.toLowerCase().includes('avalanche') ||
+        chain.chainName.toLowerCase().includes('c-chain')
       );
+
+      // Sort chains: C-Chain first, then alphabetically
+      const sortedChains = filteredChains.sort((a, b) => {
+        const isAvalancheA = a.chainName.toLowerCase().includes('c-chain');
+        const isAvalancheB = b.chainName.toLowerCase().includes('c-chain');
+
+        if (isAvalancheA && !isAvalancheB) return -1;
+        if (!isAvalancheA && isAvalancheB) return 1;
+        return a.chainName.localeCompare(b.chainName);
+      });
       
-      setChains(filteredChains);
+      setChains(sortedChains);
       setHealth(healthData);
       setError(null);
     } catch (err) {

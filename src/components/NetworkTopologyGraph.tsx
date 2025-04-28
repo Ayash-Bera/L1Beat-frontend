@@ -50,9 +50,11 @@ export function NetworkTopologyGraph() {
         const chainsData = await getChains();
         
         if (chainsData && chainsData.length > 0) {
-          // Filter chains to only include those with at least one validator
+          // Filter chains to include those with validators OR Avalanche chains
           const validChains = chainsData.filter(chain => 
-            chain.validators && chain.validators.length > 0
+            (chain.validators && chain.validators.length > 0) ||
+            chain.chainName.toLowerCase().includes('avalanche') ||
+            chain.chainName.toLowerCase().includes('c-chain')
           );
           
           if (validChains.length > 0) {
