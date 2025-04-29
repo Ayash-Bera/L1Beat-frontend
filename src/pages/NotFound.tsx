@@ -2,12 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileQuestion, ArrowLeft } from 'lucide-react';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { Footer } from '../components/Footer';
 
 export function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-900 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-dark-900">
       <div className="flex justify-end p-4">
         <ThemeToggle />
       </div>
@@ -33,6 +34,8 @@ export function NotFound() {
           </button>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

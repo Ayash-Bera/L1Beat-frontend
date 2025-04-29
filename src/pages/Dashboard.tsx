@@ -8,6 +8,7 @@ import { TPSChart } from '../components/TPSChart';
 import { TeleporterSankeyDiagram } from '../components/TeleporterSankeyDiagram';
 import { NetworkTopologyGraph } from '../components/NetworkTopologyGraph';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { Footer } from '../components/Footer';
 import { LayoutGrid, Activity, Network } from 'lucide-react';
 
 export function Dashboard() {
@@ -110,10 +111,10 @@ export function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <StatusBar health={health} />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* TVL Chart commented out due to backend issues */}
         {/* <div className="mb-8">
           <TVLChart />
@@ -156,6 +157,8 @@ export function Dashboard() {
           ))}
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }
