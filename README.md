@@ -69,7 +69,7 @@ Ensure you have the following installed:
 
 ```bash
 # Clone the repository
-git clone https://github.com/muhammetselimfe/L1Beat-frontend.git
+git clone https://github.com/L1Beat/L1Beat-frontend.git
 cd L1Beat-frontend
 
 # Install dependencies
