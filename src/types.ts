@@ -4,6 +4,8 @@ export interface Chain {
   chainName: string;
   chainLogoUri?: string;
   description?: string;
+  subnetId?: string;
+  platformChainId?: string;
   tps: {
     value: number;
     timestamp: number;

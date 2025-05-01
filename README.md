@@ -50,7 +50,7 @@ Experience L1Beat in action: [L1Beat.io](https://l1beat.io/)
   - Zod (Schema Validation)
 - **Utilities**
   - date-fns (Date formatting)
-  - lucide-react (Icons)
+  - lucide-react, simple-icons (Icons)
 - **Build & Tooling**
   - TypeScript 5.x
   - ESLint 9.x

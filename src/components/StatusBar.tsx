@@ -11,15 +11,13 @@ interface StatusBarProps {
 export function StatusBar({ health }: StatusBarProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(true); // Start with animation enabled
+  const [isAnimating, setIsAnimating] = useState(true);
+  const [showTooltip, setShowTooltip] = useState<'blog' | 'acps' | null>(null);
 
   useEffect(() => {
-    // Initial animation
     const timer = setTimeout(() => setIsAnimating(false), 1000);
-
-    // Cleanup
     return () => clearTimeout(timer);
-  }, []); // Run once on mount
+  }, []);
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -35,10 +33,7 @@ export function StatusBar({ health }: StatusBarProps) {
     };
 
     window.addEventListener('scroll', controlNavbar);
-
-    return () => {
-      window.removeEventListener('scroll', controlNavbar);
-    };
+    return () => window.removeEventListener('scroll', controlNavbar);
   }, [lastScrollY]);
 
   const handleLogoClick = () => {
@@ -128,17 +123,43 @@ export function StatusBar({ health }: StatusBarProps) {
               </div>
             </div>
 
-            {/* Last Update and Theme Toggle */}
+            {/* Navigation and Theme Toggle */}
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                <Clock className="w-4 h-4" />
-                <span>Last Updated: {format(timestamp, 'h:mm a')}</span>
-                {timeDiff > 5 && (
-                  <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-300">
-                    {timeDiff} minutes ago
-                  </span>
-                )}
+              {/* Blog and ACPs buttons */}
+              <div className="flex items-center gap-3 mr-4">
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowTooltip('blog')}
+                    onMouseEnter={() => setShowTooltip('blog')}
+                    onMouseLeave={() => setShowTooltip(null)}
+                    className="inline-flex items-center px-4 py-2 rounded-md font-medium text-sm text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow transform hover:-translate-y-0.5"
+                  >
+                    Blog
+                  </button>
+                  {showTooltip === 'blog' && (
+                    <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded shadow-lg whitespace-nowrap">
+                      Coming Soon
+                    </div>
+                  )}
+                </div>
+                
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowTooltip('acps')}
+                    onMouseEnter={() => setShowTooltip('acps')}
+                    onMouseLeave={() => setShowTooltip(null)}
+                    className="inline-flex items-center px-4 py-2 rounded-md font-medium text-sm bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-dark-600 transition-all duration-200 shadow-sm hover:shadow transform hover:-translate-y-0.5"
+                  >
+                    ACPs
+                  </button>
+                  {showTooltip === 'acps' && (
+                    <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded shadow-lg whitespace-nowrap">
+                      Coming Soon
+                    </div>
+                  )}
+                </div>
               </div>
+
               <div className="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
               <ThemeToggle />
             </div>

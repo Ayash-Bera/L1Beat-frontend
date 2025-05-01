@@ -1,4 +1,5 @@
-import { Github, X, Mail } from 'lucide-react';
+import { Github, Mail } from 'lucide-react';
+import { siX } from 'simple-icons/icons';
 
 export function Footer() {
   return (
@@ -59,7 +60,7 @@ export function Footer() {
                 href="https://github.com/L1Beat"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 title="GitHub"
               >
                 <Github className="h-6 w-6" />
@@ -68,15 +69,19 @@ export function Footer() {
                 href="https://x.com/l1beat_io"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                title="X (Twitter)"
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
-                <X className="h-6 w-6" />
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-6 w-6"
+                  fill="currentColor"
+                >
+                  <path d={siX.path} />
+                </svg>
               </a>
               <a
                 href="mailto:hello@l1beat.io"
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                title="Email"
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <Mail className="h-6 w-6" />
               </a>

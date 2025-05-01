@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { getChains, getTPSHistory } from '../api';
 import { Chain, TPSHistory } from '../types';
-import { Activity, ArrowLeft, Server, Clock, Search, CheckCircle, XCircle, Info } from 'lucide-react';
+import { Activity, ArrowLeft, Server, Clock, Search, CheckCircle, XCircle, Info, Copy, Check } from 'lucide-react';
 import { StakeDistributionChart, getValidatorColor } from '../components/StakeDistributionChart';
 import { TPSChart } from '../components/TPSChart';
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -20,6 +20,7 @@ export function ChainDetails() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAllValidators, setShowAllValidators] = useState(false);
   const { theme } = useTheme();
+  const [copied, setCopied] = useState<'chainId' | 'subnetId' | 'platformChainId' | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -48,6 +49,18 @@ export function ChainDetails() {
 
     fetchData();
   }, [chainId]);
+
+  const handleCopy = async (type: 'chainId' | 'subnetId' | 'platformChainId', value?: string) => {
+    if (value) {
+      try {
+        await navigator.clipboard.writeText(value);
+        setCopied(type);
+        setTimeout(() => setCopied(null), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    }
+  };
 
   const getCurrentTPS = () => {
     if (!tpsHistory.length) return 'N/A';
@@ -134,7 +147,59 @@ export function ChainDetails() {
                 )}
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{chain.chainName}</h1>
-                  <p className="text-gray-500 dark:text-gray-400">Chain ID: {chain.chainId}</p>
+                  <div className="flex flex-col gap-1.5 mt-2">
+                    <div className="flex items-center gap-2">
+                      <p className="text-gray-500 dark:text-gray-400">Chain ID:</p>
+                      <button
+                        onClick={() => handleCopy('chainId', chain.chainId)}
+                        className="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                        title="Click to copy Chain ID"
+                      >
+                        <span>{chain.chainId}</span>
+                        {copied === 'chainId' ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+                    
+                    {chain.subnetId && (
+                      <div className="flex items-center gap-2">
+                        <p className="text-gray-500 dark:text-gray-400">Subnet ID:</p>
+                        <button
+                          onClick={() => handleCopy('subnetId', chain.subnetId)}
+                          className="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                          title="Click to copy Subnet ID"
+                        >
+                          <span>{chain.subnetId}</span>
+                          {copied === 'subnetId' ? (
+                            <Check className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    )}
+                    
+                    {chain.platformChainId && (
+                      <div className="flex items-center gap-2">
+                        <p className="text-gray-500 dark:text-gray-400">Blockchain ID:</p>
+                        <button
+                          onClick={() => handleCopy('platformChainId', chain.platformChainId)}
+                          className="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                          title="Click to copy Blockchain ID"
+                        >
+                          <span>{chain.platformChainId}</span>
+                          {copied === 'platformChainId' ? (
+                            <Check className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

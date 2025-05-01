@@ -7,7 +7,6 @@ import { TVLChart } from '../components/TVLChart';
 import { TPSChart } from '../components/TPSChart';
 import { TeleporterSankeyDiagram } from '../components/TeleporterSankeyDiagram';
 import { NetworkTopologyGraph } from '../components/NetworkTopologyGraph';
-import { ThemeToggle } from '../components/ThemeToggle';
 import { Footer } from '../components/Footer';
 import { LayoutGrid, Activity, Network } from 'lucide-react';
 
@@ -140,14 +139,11 @@ export function Dashboard() {
         </div>
 
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <LayoutGrid className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Active Chains
-              </h2>
-            </div>
-            <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <LayoutGrid className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Active Chains
+            </h2>
           </div>
         </div>
 
