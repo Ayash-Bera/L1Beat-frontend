@@ -80,3 +80,19 @@ export interface TeleporterMessageData {
     updatedAt: string;
   };
 }
+
+export interface TeleporterDailyMessage {
+  sourceChain: string;
+  destinationChain: string;
+  messageCount: number;
+}
+
+export interface TeleporterDailyData {
+  date: string;
+  dateString: string;
+  data: TeleporterDailyMessage[];
+  totalMessages: number;
+  timeWindow: number;
+}
+
+export type TimeframeOption = 7 | 14 | 30;

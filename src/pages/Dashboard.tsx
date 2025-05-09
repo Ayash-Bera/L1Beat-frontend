@@ -9,6 +9,7 @@ import { TeleporterSankeyDiagram } from '../components/TeleporterSankeyDiagram';
 import { NetworkTopologyGraph } from '../components/NetworkTopologyGraph';
 import { Footer } from '../components/Footer';
 import { LayoutGrid, Activity, Network } from 'lucide-react';
+import { TeleporterDailyChart } from '../components/TeleporterDailyChart';
 
 export function Dashboard() {
   const [chains, setChains] = useState<Chain[]>([]);
@@ -114,16 +115,6 @@ export function Dashboard() {
       <StatusBar health={health} />
       
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* TVL Chart commented out due to backend issues */}
-        {/* <div className="mb-8">
-          <TVLChart />
-        </div> */}
-
-        {/* Network-wide TPS Chart commented out due to backend issues */}
-        {/* <div className="mb-8">
-          <TPSChart />
-        </div> */}
-        
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Network className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -136,6 +127,10 @@ export function Dashboard() {
             <NetworkTopologyGraph />
             <TeleporterSankeyDiagram />
           </div>
+        </div>
+
+        <div className="mb-8">
+          <TeleporterDailyChart />
         </div>
 
         <div className="mb-8">

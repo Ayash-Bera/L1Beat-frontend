@@ -1,5 +1,44 @@
-import type { Chain, TVLHistory, TVLHealth, NetworkTPS, TPSHistory, HealthStatus, TeleporterMessageData } from './types';
+import type { Chain, TVLHistory, TVLHealth, NetworkTPS, TPSHistory, HealthStatus, TeleporterMessageData, TeleporterDailyData } from './types';
 import { config } from './config';
+
+// XSS protection - sanitize strings in API responses
+function sanitizeString(value: string): string {
+  if (typeof value !== 'string') return value;
+  
+  // Replace potentially dangerous characters
+  return value
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Sanitize API response recursively
+function sanitizeResponse(data: any): any {
+  if (data === null || data === undefined) return data;
+  
+  if (typeof data === 'string') {
+    return sanitizeString(data);
+  }
+  
+  if (Array.isArray(data)) {
+    return data.map(item => sanitizeResponse(item));
+  }
+  
+  if (typeof data === 'object') {
+    const result: Record<string, any> = {};
+    
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        result[key] = sanitizeResponse(data[key]);
+      }
+    }
+    
+    return result;
+  }
+  
+  return data;
+}
 
 // Add caching layer for API responses
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -15,6 +54,52 @@ const DEFAULT_HEADERS = {
   'Origin': window.location.origin,
 };
 
+// Define constants for rate limiting
+const REQUEST_LIMIT = 50; // Max requests per minute
+const REQUEST_PERIOD = 60 * 1000; // 1 minute in milliseconds
+
+// Track API calls for rate limiting
+const apiRequestTracker = {
+  requests: [] as number[],
+  isRateLimited: false,
+  rateLimitTimeout: null as NodeJS.Timeout | null,
+  
+  // Record a new request timestamp
+  recordRequest() {
+    const now = Date.now();
+    this.requests.push(now);
+    
+    // Remove old requests outside the tracking window
+    this.requests = this.requests.filter(time => now - time < REQUEST_PERIOD);
+    
+    // Check if we've exceeded the limit
+    if (this.requests.length > REQUEST_LIMIT && !this.isRateLimited) {
+      this.isRateLimited = true;
+      console.warn(`Rate limit reached: ${this.requests.length} requests in the last minute`);
+      
+      // Auto-reset after the time window
+      if (this.rateLimitTimeout) {
+        clearTimeout(this.rateLimitTimeout);
+      }
+      
+      this.rateLimitTimeout = setTimeout(() => {
+        this.isRateLimited = false;
+        this.requests = [];
+        console.log('Rate limit reset');
+      }, REQUEST_PERIOD);
+    }
+    
+    return this.isRateLimited;
+  },
+  
+  // Get current request count
+  getRequestCount() {
+    const now = Date.now();
+    this.requests = this.requests.filter(time => now - time < REQUEST_PERIOD);
+    return this.requests.length;
+  }
+};
+
 async function fetchWithCache<T>(
   key: string,
   fetcher: () => Promise<T>,
@@ -26,10 +111,31 @@ async function fetchWithCache<T>(
   if (cached && now - cached.timestamp < duration) {
     return cached.data;
   }
+  
+  // Check if we're rate-limited
+  if (apiRequestTracker.isRateLimited) {
+    console.warn(`Request to ${key} was blocked by rate limiting`);
+    
+    // If we have cached data (even if expired), use it
+    if (cached) {
+      console.log(`Using stale cached data for ${key} due to rate limiting`);
+      return cached.data;
+    }
+  }
+  
+  // Record the request attempt
+  apiRequestTracker.recordRequest();
 
+  // Fetch fresh data
   const data = await fetcher();
-  cache.set(key, { data, timestamp: now });
-  return data;
+  
+  // Sanitize the response data to prevent XSS
+  const sanitizedData = sanitizeResponse(data);
+  
+  // Cache the sanitized data
+  cache.set(key, { data: sanitizedData, timestamp: now });
+  
+  return sanitizedData;
 }
 
 async function fetchWithRetry<T>(
@@ -39,66 +145,83 @@ async function fetchWithRetry<T>(
   backoffFactor: number = 2,
   timeout: number = 30000 // 30 second timeout
 ): Promise<T> {
-  let lastError: Error;
+  let lastError: Error = new Error('Unknown error occurred');
   let attempt = 0;
   
+  // Create a new AbortController for each retry attempt
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
   
-  while (attempt < retries) {
-    try {
-      const response = await fetch(url, {
-        ...options,
-        signal: controller.signal,
-        mode: 'cors',
-        credentials: 'omit',
-        headers: {
-          ...DEFAULT_HEADERS,
-          ...options.headers,
-          'Cache-Control': 'no-cache',
-        },
-      });
+  try {
+    while (attempt < retries) {
+      try {
+        const response = await fetch(url, {
+          ...options,
+          signal: controller.signal,
+          mode: 'cors',
+          credentials: 'omit',
+          headers: {
+            ...DEFAULT_HEADERS,
+            ...options.headers,
+            'Cache-Control': 'no-cache',
+          },
+        });
 
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        if (response.status === 504) {
-          throw new Error('Server timeout - The request took too long to complete');
+        // Check for HTTP errors
+        if (!response.ok) {
+          if (response.status === 504) {
+            throw new Error('Server timeout - The request took too long to complete');
+          }
+          if (response.status === 429) {
+            throw new Error('Rate limit exceeded - Please try again later');
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        if (response.status === 429) {
-          throw new Error('Rate limit exceeded - Please try again later');
+
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          return data;
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        return data;
+        throw new Error('Invalid content type');
+      } catch (error) {
+        lastError = error as Error;
+        
+        // Check if the request was aborted (timeout)
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          throw new Error('Request timeout - The connection to the server timed out');
+        }
+        
+        // Check if it's a CORS error
+        if (error instanceof TypeError && error.message.includes('CORS')) {
+          console.error('CORS error detected:', error);
+          // Return fallback data for CORS errors
+          return getFallbackData<T>();
+        }
+        
+        // Check for network errors (offline)
+        if (error instanceof TypeError && (error.message.includes('Failed to fetch') || error.message.includes('Network request failed'))) {
+          console.error('Network error detected:', error);
+          throw new Error('Network error - Please check your internet connection');
+        }
+        
+        attempt++;
+        
+        if (attempt === retries) break;
+        
+        const delay = Math.min(1000 * Math.pow(backoffFactor, attempt), 10000);
+        const jitter = Math.random() * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay + jitter));
       }
-
-      throw new Error('Invalid content type');
-    } catch (error) {
-      lastError = error as Error;
-      
-      // Check if it's a CORS error
-      if (error instanceof TypeError && error.message.includes('CORS')) {
-        console.error('CORS error detected:', error);
-        // Return fallback data for CORS errors
-        return getFallbackData<T>();
-      }
-      
-      attempt++;
-      
-      if (attempt === retries) break;
-      
-      const delay = Math.min(1000 * Math.pow(backoffFactor, attempt), 10000);
-      const jitter = Math.random() * 1000;
-      await new Promise(resolve => setTimeout(resolve, delay + jitter));
     }
+    
+    // If we've exhausted all retries, throw the last error or return fallback
+    throw lastError;
+  } finally {
+    // Always clear the timeout to prevent memory leaks
+    clearTimeout(timeoutId);
   }
-  
-  clearTimeout(timeoutId);
   
   // Return fallback data for any error after all retries
   return getFallbackData<T>();
@@ -137,10 +260,12 @@ function getFallbackData<T>(): T {
         endDate: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
-    }
+    },
+    TeleporterDailyData: []
   };
 
-  return fallbackData[T.name] as T;
+  // Use type assertion instead of dynamic property access
+  return fallbackData as unknown as T;
 }
 
 export async function getChains(): Promise<Chain[]> {
@@ -353,6 +478,25 @@ export async function getTeleporterMessages(): Promise<TeleporterMessageData> {
           updatedAt: new Date().toISOString()
         }
       };
+    }
+  }, 15 * 60 * 1000); // Cache for 15 minutes
+}
+
+export async function getTeleporterDailyHistory(days: number = 30): Promise<TeleporterDailyData[]> {
+  return fetchWithCache(`teleporter-daily-history-${days}`, async () => {
+    try {
+      const response = await fetchWithRetry<{ data: TeleporterDailyData[] }>(
+        `${API_URL}/teleporter/messages/historical-daily?days=${days}`
+      );
+      
+      if (!response.data || !Array.isArray(response.data)) {
+        throw new Error('Invalid Teleporter daily history data format');
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error('Teleporter daily history fetch error:', error);
+      return [];
     }
   }, 15 * 60 * 1000); // Cache for 15 minutes
 }
