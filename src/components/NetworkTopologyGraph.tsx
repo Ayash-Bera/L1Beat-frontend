@@ -25,11 +25,11 @@ interface Bullet {
 
 const ORBIT_CONFIG = {
   count: 3,
-  baseRadius: 80,
-  radiusIncrement: 60,
-  baseSpeed: 0.0008, // Very slow for inner orbit
-  speedMultiplier: 1.8, // Each outer orbit is 1.8x faster
-  visibilityThreshold: 0.15, // How far off-screen before hiding (0-1)
+  baseRadius: 120,
+  radiusIncrement: 80,
+  baseSpeed: 0.0002, // Much slower and more elegant
+  speedMultiplier: 1.4, // Gentler speed difference between orbits
+  visibilityThreshold: 0.1, // How far off-screen before hiding (0-1)
 };
 
 export function NetworkTopologyGraph() {
@@ -134,7 +134,7 @@ export function NetworkTopologyGraph() {
     setDimensions({ width, height });
 
     const centerX = width / 2;
-    const centerY = height - 60; // Position C-Chain near bottom
+    const centerY = height * 0.85; // Position C-Chain lower to use more space
 
     const newPositions = new Map<string, NodePosition>();
 
@@ -308,10 +308,10 @@ export function NetworkTopologyGraph() {
     navigate(`/chain/${chain.chainId}`);
   };
 
-  // Create curved path for connections
+  // Create curved path for connections with gentler curve
   const createCurvedPath = (fromPos: NodePosition, toPos: NodePosition) => {
     const midX = (fromPos.x + toPos.x) / 2;
-    const midY = (fromPos.y + toPos.y) / 2 - 30; // Add curve by pulling up
+    const midY = (fromPos.y + toPos.y) / 2 - 20; // Gentler curve
 
     return `M ${fromPos.x} ${fromPos.y} Q ${midX} ${midY} ${toPos.x} ${toPos.y}`;
   };
@@ -374,7 +374,7 @@ export function NetworkTopologyGraph() {
 
       <div
         ref={containerRef}
-        className="relative bg-gradient-to-b from-gray-50 to-gray-100 dark:from-dark-900/70 dark:to-dark-900/90 rounded-lg border border-gray-100 dark:border-dark-700 h-[400px] w-full overflow-hidden"
+        className="relative bg-gradient-to-b from-gray-50 to-gray-100 dark:from-dark-900/70 dark:to-dark-900/90 rounded-lg border border-gray-100 dark:border-dark-700 h-[450px] w-full overflow-hidden"
       >
         {/* Background effect */}
         <div className="absolute inset-0">
@@ -392,8 +392,8 @@ export function NetworkTopologyGraph() {
               <ellipse
                 cx={positions.get(cChain.chainId)?.x}
                 cy={positions.get(cChain.chainId)?.y}
-                rx="120"
-                ry="60"
+                rx="150"
+                ry="80"
                 fill="url(#centerGlow)"
                 className="animate-pulse-slow"
               />
@@ -532,7 +532,7 @@ export function NetworkTopologyGraph() {
                 {/* TPS indicator for non-center nodes */}
                 {!isCenter && chain.tps && (
                   <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white dark:border-dark-800 ${chain.tps.value >= 1 ? 'bg-green-500' :
-                      chain.tps.value >= 0.1 ? 'bg-yellow-500' : 'bg-red-500'
+                    chain.tps.value >= 0.1 ? 'bg-yellow-500' : 'bg-red-500'
                     }`}></div>
                 )}
 
@@ -563,7 +563,7 @@ export function NetworkTopologyGraph() {
                     <span className="font-semibold">{chain.chainName}</span>
                     {chain.tps && (
                       <span className={`text-xs ${chain.tps.value >= 1 ? 'text-green-500' :
-                          chain.tps.value >= 0.1 ? 'text-yellow-500' : 'text-red-500'
+                        chain.tps.value >= 0.1 ? 'text-yellow-500' : 'text-red-500'
                         }`}>
                         {chain.tps.value.toFixed(2)} TPS
                       </span>
