@@ -29,6 +29,8 @@ const ORBIT_CONFIG = {
   radiusIncrement: 80, // SPACING BETWEEN CIRCLES - increase for more space, decrease for less
   baseSpeed: 0.0003, // Slightly faster for smoother movement
   speedMultiplier: 1.2, // Reduced for more uniform speeds
+  maxChainsPerOrbit: [8, 20, 50], // Max chains for orbit 0, 1, 2
+  tpsBasedExpansion: true,
 };
 
 export function NetworkTopologyGraph() {
@@ -48,9 +50,9 @@ export function NetworkTopologyGraph() {
   const rotationAngles = useRef<number[]>([0, 0, 0]); // Track rotation for each orbit
 
   // Animation settings
-  const BULLET_BASE_SPEED = 0.15;
-  const MAX_BULLETS = 30;
-  const BULLET_SPAWN_RATE = 0.03;
+  const BULLET_BASE_SPEED = 0.015;
+  const MAX_BULLETS = 50;
+  const BULLET_SPAWN_RATE = 0.1;
 
   useEffect(() => {
     async function fetchChains() {
@@ -92,24 +94,62 @@ export function NetworkTopologyGraph() {
   ), [chains]);
 
   // Randomly distribute chains across orbits
+  // OPTIMIZATION 6: Efficient Filtering - Pre-compute center and orbit chains
+  const { centerChain, orbitChains } = useMemo(() => {
+    const center = chains.find(chain =>
+      chain.chainName.toLowerCase().includes('c-chain') ||
+      chain.chainName.toLowerCase().includes('c chain')
+    );
+
+    const orbits = center
+      ? chains.filter(chain => chain.chainId !== center.chainId)
+      : [];
+
+    return { centerChain: center, orbitChains: orbits };
+  }, [chains]);
+
+  // Randomly distribute chains across orbits with limits and TPS-based assignment
+  // Randomly distribute chains across orbits with limits and TPS-based assignment
   const chainOrbits = useMemo(() => {
     if (!chains.length || !cChain) return new Map();
 
-    const otherChains = chains.filter(chain => chain.chainId !== cChain.chainId);
     const orbits = new Map<string, number>();
+    const orbitCounts = [0, 0, 0]; // Track chains per orbit
 
-    // Randomly assign each chain to an orbit
-    otherChains.forEach(chain => {
-      const orbit = Math.floor(Math.random() * ORBIT_CONFIG.count);
-      orbits.set(chain.chainId, orbit);
+    // Sort chains by TPS (higher TPS gets inner orbits)
+    const sortedChains = [...orbitChains].sort((a, b) => {
+      const aTps = a.tps?.value || 0;
+      const bTps = b.tps?.value || 0;
+      return bTps - aTps; // Descending order (highest TPS first)
+    });
+
+    sortedChains.forEach(chain => {
+      // Find the innermost available orbit
+      let assignedOrbit = 0;
+      for (let i = 0; i < ORBIT_CONFIG.count; i++) {
+        if (orbitCounts[i] < ORBIT_CONFIG.maxChainsPerOrbit[i]) {
+          assignedOrbit = i;
+          break;
+        }
+      }
+
+      // If all orbits are full, assign to the outermost orbit
+      if (orbitCounts[assignedOrbit] >= ORBIT_CONFIG.maxChainsPerOrbit[assignedOrbit]) {
+        assignedOrbit = ORBIT_CONFIG.count - 1;
+      }
+
+      orbits.set(chain.chainId, assignedOrbit);
+      orbitCounts[assignedOrbit]++;
     });
 
     return orbits;
-  }, [chains, cChain]);
+  }, [orbitChains, cChain]);
+
+
 
   // Calculate node sizes - MUCH BIGGER
   const getNodeSize = (chain: Chain, isCenter: boolean) => {
-    if (isCenter) return 100; // Increased from 70
+    if (isCenter) return 80; // Increased from 70
 
     if (chain.tps && typeof chain.tps.value === 'number') {
       const tpsValue = chain.tps.value;
@@ -489,7 +529,7 @@ export function NetworkTopologyGraph() {
           return (
             <div
               key={chain.chainId}
-              className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 cursor-pointer
+              className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 cursor-pointer 
                 ${isHovered || isSelected ? 'scale-110 z-20' : 'scale-100 z-10'}
                 ${isCenter ? 'z-30' : ''}
               `}
@@ -505,7 +545,7 @@ export function NetworkTopologyGraph() {
             >
               {/* Special styling for center node */}
               {isCenter && (
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-red-500/30 to-red-600/40 animate-pulse-slow"></div>
+                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-red-500/20 to-red-600/30 animate-pulse-slow"></div>
               )}
 
               {/* Node container */}
@@ -526,7 +566,7 @@ export function NetworkTopologyGraph() {
                 )}
 
                 {/* Inner content */}
-                <div className={`w-full h-full rounded-full flex items-center justify-center ${isCenter ? 'bg-white dark:bg-dark-800 m-2' : ''
+                <div className={`w-full h-full rounded-full flex items-center justify-center ${isCenter ? 'bg-white dark:bg-dark-800 ' : ''
                   }`}>
                   {chain.chainLogoUri ? (
                     <img
