@@ -25,11 +25,10 @@ interface Bullet {
 
 const ORBIT_CONFIG = {
   count: 3,
-  baseRadius: 120,
-  radiusIncrement: 80,
-  baseSpeed: 0.0002, // Much slower and more elegant
-  speedMultiplier: 1.4, // Gentler speed difference between orbits
-  visibilityThreshold: 0.1, // How far off-screen before hiding (0-1)
+  baseRadius: 100, // Distance from center to first orbit (inner circle)
+  radiusIncrement: 80, // SPACING BETWEEN CIRCLES - increase for more space, decrease for less
+  baseSpeed: 0.0003, // Slightly faster for smoother movement
+  speedMultiplier: 1.2, // Reduced for more uniform speeds
 };
 
 export function NetworkTopologyGraph() {
@@ -108,21 +107,21 @@ export function NetworkTopologyGraph() {
     return orbits;
   }, [chains, cChain]);
 
-  // Calculate node sizes
+  // Calculate node sizes - MUCH BIGGER
   const getNodeSize = (chain: Chain, isCenter: boolean) => {
-    if (isCenter) return 70;
+    if (isCenter) return 100; // Increased from 70
 
     if (chain.tps && typeof chain.tps.value === 'number') {
       const tpsValue = chain.tps.value;
-      if (tpsValue <= 0.1) return 35;
+      if (tpsValue <= 0.1) return 60; // Increased from 35
       const scaleFactor = Math.min(2, 1 + Math.log10(tpsValue) * 0.3);
-      return 35 * scaleFactor;
+      return 60 * scaleFactor; // Increased base from 35
     }
 
-    return 35;
+    return 60; // Increased from 35
   };
 
-  // Calculate positions for arc carousel
+  // Calculate positions for full circle rotation with seamless wraparound
   const calculatePositions = useCallback(() => {
     if (!containerRef.current || chains.length === 0 || !cChain) return;
 
@@ -134,11 +133,11 @@ export function NetworkTopologyGraph() {
     setDimensions({ width, height });
 
     const centerX = width / 2;
-    const centerY = height * 0.85; // Position C-Chain lower to use more space
+    const centerY = height / 2; // Centered vertically now
 
     const newPositions = new Map<string, NodePosition>();
 
-    // Position C-Chain at center bottom
+    // Position C-Chain at center
     newPositions.set(cChain.chainId, {
       x: centerX,
       y: centerY,
@@ -157,7 +156,7 @@ export function NetworkTopologyGraph() {
       orbitGroups[orbit].push(chain);
     });
 
-    // Calculate positions for each orbit
+    // Calculate positions for each orbit with FULL CIRCLE rotation
     orbitGroups.forEach((orbitChains, orbitIndex) => {
       if (orbitChains.length === 0) return;
 
@@ -165,30 +164,22 @@ export function NetworkTopologyGraph() {
       const currentRotation = rotationAngles.current[orbitIndex];
 
       orbitChains.forEach((chain, chainIndex) => {
-        // Evenly distribute chains around the semicircle (180 degrees)
-        const baseAngle = (chainIndex / orbitChains.length) * Math.PI;
+        // FULL CIRCLE: Evenly distribute chains around the complete circle (360 degrees)
+        const baseAngle = (chainIndex / orbitChains.length) * 2 * Math.PI; // Changed from Math.PI to 2 * Math.PI
         const totalAngle = baseAngle + currentRotation;
 
-        // Calculate position
+        // Calculate position using full circle
         const x = centerX + radius * Math.cos(totalAngle);
-        const y = centerY - radius * Math.sin(totalAngle);
+        const y = centerY + radius * Math.sin(totalAngle);
 
-        // Check visibility (chains are visible when y-coordinate shows they're in the upper semicircle)
-        const normalizedAngle = ((totalAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        const isInVisibleRange = normalizedAngle >= 0 && normalizedAngle <= Math.PI;
-        const distanceFromEdge = Math.min(
-          Math.abs(normalizedAngle),
-          Math.abs(normalizedAngle - Math.PI)
-        ) / (Math.PI * ORBIT_CONFIG.visibilityThreshold);
-
-        const visible = isInVisibleRange && distanceFromEdge > 1;
-
+        // ALL NODES ARE ALWAYS VISIBLE - no more disappearing/blank screen
+        // Remove the complex visibility logic that was causing blank periods
         newPositions.set(chain.chainId, {
           x,
           y,
           orbit: orbitIndex,
           angle: totalAngle,
-          visible
+          visible: true // Always visible for seamless rotation
         });
       });
     });
@@ -210,10 +201,13 @@ export function NetworkTopologyGraph() {
         return;
       }
 
-      // Update orbit rotations
+      // Update orbit rotations for seamless full circle movement
       for (let i = 0; i < ORBIT_CONFIG.count; i++) {
         const speed = ORBIT_CONFIG.baseSpeed * Math.pow(ORBIT_CONFIG.speedMultiplier, i);
         rotationAngles.current[i] += speed * deltaTime;
+
+        // Normalize rotation to prevent overflow (seamless wraparound)
+        rotationAngles.current[i] = rotationAngles.current[i] % (2 * Math.PI);
       }
 
       // Recalculate positions
@@ -230,22 +224,19 @@ export function NetworkTopologyGraph() {
             const fromPos = positions.get(bullet.fromChainId);
             const toPos = positions.get(bullet.toChainId);
 
-            // Check if bullet should be visible based on connected nodes
-            const visible = fromPos?.visible && toPos?.visible;
+            // All bullets are always visible since all nodes are always visible
+            const visible = true;
 
             return { ...bullet, progress: newProgress, visible };
           })
           .filter(bullet => bullet.progress < 1 && bullet.visible);
 
-        // Spawn new bullets occasionally between visible chains
+        // Spawn new bullets occasionally between any chains
         if (updatedBullets.length < MAX_BULLETS && Math.random() < BULLET_SPAWN_RATE) {
-          const visibleChains = chains.filter(chain => {
-            const pos = positions.get(chain.chainId);
-            return pos?.visible && chain.chainId !== cChain.chainId;
-          });
+          const availableChains = chains.filter(chain => chain.chainId !== cChain.chainId);
 
-          if (visibleChains.length > 0) {
-            const randomChain = visibleChains[Math.floor(Math.random() * visibleChains.length)];
+          if (availableChains.length > 0) {
+            const randomChain = availableChains[Math.floor(Math.random() * availableChains.length)];
             const direction = Math.random() > 0.5 ? 'outgoing' : 'incoming';
 
             const newBullet: Bullet = {
@@ -254,7 +245,7 @@ export function NetworkTopologyGraph() {
               toChainId: direction === 'outgoing' ? randomChain.chainId : cChain.chainId,
               progress: 0,
               speed: BULLET_BASE_SPEED * (0.8 + Math.random() * 0.4),
-              size: 2 + Math.random() * 2,
+              size: 3 + Math.random() * 3, // Slightly bigger bullets too
               color: getRandomBulletColor(),
               visible: true
             };
@@ -311,7 +302,7 @@ export function NetworkTopologyGraph() {
   // Create curved path for connections with gentler curve
   const createCurvedPath = (fromPos: NodePosition, toPos: NodePosition) => {
     const midX = (fromPos.x + toPos.x) / 2;
-    const midY = (fromPos.y + toPos.y) / 2 - 20; // Gentler curve
+    const midY = (fromPos.y + toPos.y) / 2 - 30; // Slightly more curve for bigger nodes
 
     return `M ${fromPos.x} ${fromPos.y} Q ${midX} ${midY} ${toPos.x} ${toPos.y}`;
   };
@@ -382,36 +373,37 @@ export function NetworkTopologyGraph() {
           {cChain && positions.get(cChain.chainId) && (
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
               <defs>
-                <radialGradient id="centerGlow" cx="50%" cy="100%" r="60%">
+                <radialGradient id="centerGlow" cx="50%" cy="50%" r="60%">
                   <stop offset="0%" stopColor="rgba(232, 65, 66, 0.15)" />
                   <stop offset="100%" stopColor="rgba(232, 65, 66, 0)" />
                 </radialGradient>
               </defs>
 
               {/* Center glow */}
-              <ellipse
+              <circle
                 cx={positions.get(cChain.chainId)?.x}
                 cy={positions.get(cChain.chainId)?.y}
-                rx="150"
-                ry="80"
+                r="180"
                 fill="url(#centerGlow)"
                 className="animate-pulse-slow"
               />
 
-              {/* Orbital guides */}
+              {/* Orbital guides - FULL CIRCLES now */}
               {[0, 1, 2].map(orbit => {
                 const centerPos = positions.get(cChain.chainId);
                 if (!centerPos) return null;
 
                 const radius = ORBIT_CONFIG.baseRadius + (orbit * ORBIT_CONFIG.radiusIncrement);
                 return (
-                  <path
+                  <circle
                     key={orbit}
-                    d={`M ${centerPos.x - radius} ${centerPos.y} A ${radius} ${radius} 0 0 0 ${centerPos.x + radius} ${centerPos.y}`}
+                    cx={centerPos.x}
+                    cy={centerPos.y}
+                    r={radius}
                     fill="none"
                     stroke="rgba(156, 163, 175, 0.1)"
                     strokeWidth="1"
-                    strokeDasharray="5,10"
+                    strokeDasharray="8,12"
                   />
                 );
               })}
@@ -428,16 +420,16 @@ export function NetworkTopologyGraph() {
             </filter>
           </defs>
 
-          {/* Draw connections */}
+          {/* Draw connections - all connections are always visible */}
           {chains.map(chain => {
             const position = positions.get(chain.chainId);
-            if (!position || !position.visible || chain.chainId === cChain?.chainId) return null;
+            if (!position || chain.chainId === cChain?.chainId) return null;
 
             const centerPosition = positions.get(cChain?.chainId || '');
             if (!centerPosition) return null;
 
             const isHighlighted = hoveredChain?.chainId === chain.chainId || selectedChain?.chainId === chain.chainId;
-            const opacity = position.visible ? (isHighlighted ? 0.8 : 0.4) : 0;
+            const opacity = isHighlighted ? 0.8 : 0.4;
 
             return (
               <path
@@ -483,7 +475,7 @@ export function NetworkTopologyGraph() {
           })}
         </svg>
 
-        {/* Render chain nodes */}
+        {/* Render chain nodes - ALL NODES ARE ALWAYS VISIBLE */}
         {chains.map(chain => {
           const position = positions.get(chain.chainId);
           if (!position) return null;
@@ -491,9 +483,6 @@ export function NetworkTopologyGraph() {
           const isCenter = chain.chainId === cChain?.chainId;
           const isHovered = chain.chainId === hoveredChain?.chainId;
           const isSelected = chain.chainId === selectedChain?.chainId;
-          const shouldShow = isCenter || position.visible;
-
-          if (!shouldShow) return null;
 
           const nodeSize = getNodeSize(chain, isCenter);
 
@@ -531,13 +520,13 @@ export function NetworkTopologyGraph() {
               `}>
                 {/* TPS indicator for non-center nodes */}
                 {!isCenter && chain.tps && (
-                  <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white dark:border-dark-800 ${chain.tps.value >= 1 ? 'bg-green-500' :
+                  <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-dark-800 ${chain.tps.value >= 1 ? 'bg-green-500' :
                     chain.tps.value >= 0.1 ? 'bg-yellow-500' : 'bg-red-500'
                     }`}></div>
                 )}
 
                 {/* Inner content */}
-                <div className={`w-full h-full rounded-full flex items-center justify-center ${isCenter ? 'bg-white dark:bg-dark-800 m-1.5' : ''
+                <div className={`w-full h-full rounded-full flex items-center justify-center ${isCenter ? 'bg-white dark:bg-dark-800 m-2' : ''
                   }`}>
                   {chain.chainLogoUri ? (
                     <img
@@ -555,7 +544,7 @@ export function NetworkTopologyGraph() {
 
               {/* Hover tooltip */}
               {(isHovered || isSelected) && (
-                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap
+                <div className="absolute -bottom-14 left-1/2 transform -translate-x-1/2 whitespace-nowrap
                   px-3 py-2 rounded-md text-xs font-medium bg-white dark:bg-dark-800 shadow-lg
                   border border-gray-200 dark:border-dark-700 text-gray-800 dark:text-gray-200
                   animate-fade-in z-40">
