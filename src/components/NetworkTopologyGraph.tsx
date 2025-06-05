@@ -27,8 +27,8 @@ const ORBIT_CONFIG = {
   count: 3,
   baseRadius: 100, // Distance from center to first orbit (inner circle)
   radiusIncrement: 80, // SPACING BETWEEN CIRCLES - increase for more space, decrease for less
-  baseSpeed: 0.0003, // Slightly faster for smoother movement
-  speedMultiplier: 1.2, // Reduced for more uniform speeds
+  baseSpeed: 0.00021, // Slightly faster for smoother movement
+  speedMultiplier: 0.9, // Reduced for more uniform speeds
   maxChainsPerOrbit: [8, 20, 50], // Max chains for orbit 0, 1, 2
   tpsBasedExpansion: true,
 };
@@ -50,9 +50,9 @@ export function NetworkTopologyGraph() {
   const rotationAngles = useRef<number[]>([0, 0, 0]); // Track rotation for each orbit
 
   // Animation settings
-  const BULLET_BASE_SPEED = 0.015;
+  const BULLET_BASE_SPEED = 0.55;
   const MAX_BULLETS = 50;
-  const BULLET_SPAWN_RATE = 0.1;
+  const BULLET_SPAWN_RATE = 0.9;
 
   useEffect(() => {
     async function fetchChains() {
@@ -153,8 +153,8 @@ export function NetworkTopologyGraph() {
 
     if (chain.tps && typeof chain.tps.value === 'number') {
       const tpsValue = chain.tps.value;
-      if (tpsValue <= 0.1) return 60; // Increased from 35
-      const scaleFactor = Math.min(2, 1 + Math.log10(tpsValue) * 0.3);
+      if (tpsValue <= 0.1) return 50; // Increased from 35
+      const scaleFactor = Math.min(2, 1 + Math.log10(tpsValue) * 0.1);
       return 60 * scaleFactor; // Increased base from 35
     }
 
@@ -558,12 +558,12 @@ export function NetworkTopologyGraph() {
                   ? 'shadow-xl' + (isCenter ? '' : ' border-blue-400 dark:border-blue-300')
                   : ''}
               `}>
-                {/* TPS indicator for non-center nodes */}
+                {/* TPS indicator for non-center nodes
                 {!isCenter && chain.tps && (
                   <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-dark-800 ${chain.tps.value >= 1 ? 'bg-green-500' :
                     chain.tps.value >= 0.1 ? 'bg-yellow-500' : 'bg-red-500'
                     }`}></div>
-                )}
+                )} */}
 
                 {/* Inner content */}
                 <div className={`w-full h-full rounded-full flex items-center justify-center ${isCenter ? 'bg-white dark:bg-dark-800 ' : ''
