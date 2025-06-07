@@ -3,6 +3,8 @@ import { getChains } from '../api';
 import { Chain } from '../types';
 import { Server, AlertTriangle, RefreshCw, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { GlowingEffect } from './ui/glowing-effect';
+import { cn } from '../lib/utils';
 
 interface NodePosition {
   x: number;
@@ -25,11 +27,11 @@ interface Bullet {
 
 const ORBIT_CONFIG = {
   count: 3,
-  baseRadius: 100, // Distance from center to first orbit (inner circle)
-  radiusIncrement: 80, // SPACING BETWEEN CIRCLES - increase for more space, decrease for less
-  baseSpeed: 0.00021, // Slightly faster for smoother movement
-  speedMultiplier: 0.9, // Reduced for more uniform speeds
-  maxChainsPerOrbit: [8, 20, 50], // Max chains for orbit 0, 1, 2
+  baseRadius: 100,
+  radiusIncrement: 80,
+  baseSpeed: 0.00021,
+  speedMultiplier: 0.9,
+  maxChainsPerOrbit: [8, 20, 50],
   tpsBasedExpansion: true,
 };
 
@@ -47,7 +49,7 @@ export function NetworkTopologyGraph() {
   const animationRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const bulletIdCounter = useRef(0);
-  const rotationAngles = useRef<number[]>([0, 0, 0]); // Track rotation for each orbit
+  const rotationAngles = useRef<number[]>([0, 0, 0]);
 
   // Animation settings
   const BULLET_BASE_SPEED = 0.55;
@@ -93,8 +95,6 @@ export function NetworkTopologyGraph() {
     chain.chainName.toLowerCase().includes('c chain')
   ), [chains]);
 
-  // Randomly distribute chains across orbits
-  // OPTIMIZATION 6: Efficient Filtering - Pre-compute center and orbit chains
   const { centerChain, orbitChains } = useMemo(() => {
     const center = chains.find(chain =>
       chain.chainName.toLowerCase().includes('c-chain') ||
@@ -108,23 +108,19 @@ export function NetworkTopologyGraph() {
     return { centerChain: center, orbitChains: orbits };
   }, [chains]);
 
-  // Randomly distribute chains across orbits with limits and TPS-based assignment
-  // Randomly distribute chains across orbits with limits and TPS-based assignment
   const chainOrbits = useMemo(() => {
     if (!chains.length || !cChain) return new Map();
 
     const orbits = new Map<string, number>();
-    const orbitCounts = [0, 0, 0]; // Track chains per orbit
+    const orbitCounts = [0, 0, 0];
 
-    // Sort chains by TPS (higher TPS gets inner orbits)
     const sortedChains = [...orbitChains].sort((a, b) => {
       const aTps = a.tps?.value || 0;
       const bTps = b.tps?.value || 0;
-      return bTps - aTps; // Descending order (highest TPS first)
+      return bTps - aTps;
     });
 
     sortedChains.forEach(chain => {
-      // Find the innermost available orbit
       let assignedOrbit = 0;
       for (let i = 0; i < ORBIT_CONFIG.count; i++) {
         if (orbitCounts[i] < ORBIT_CONFIG.maxChainsPerOrbit[i]) {
@@ -133,7 +129,6 @@ export function NetworkTopologyGraph() {
         }
       }
 
-      // If all orbits are full, assign to the outermost orbit
       if (orbitCounts[assignedOrbit] >= ORBIT_CONFIG.maxChainsPerOrbit[assignedOrbit]) {
         assignedOrbit = ORBIT_CONFIG.count - 1;
       }
@@ -145,23 +140,19 @@ export function NetworkTopologyGraph() {
     return orbits;
   }, [orbitChains, cChain]);
 
-
-
-  // Calculate node sizes - MUCH BIGGER
   const getNodeSize = (chain: Chain, isCenter: boolean) => {
-    if (isCenter) return 80; // Increased from 70
+    if (isCenter) return 80;
 
     if (chain.tps && typeof chain.tps.value === 'number') {
       const tpsValue = chain.tps.value;
-      if (tpsValue <= 0.1) return 50; // Increased from 35
+      if (tpsValue <= 0.1) return 50;
       const scaleFactor = Math.min(2, 1 + Math.log10(tpsValue) * 0.1);
-      return 60 * scaleFactor; // Increased base from 35
+      return 60 * scaleFactor;
     }
 
-    return 60; // Increased from 35
+    return 60;
   };
 
-  // Calculate positions for full circle rotation with seamless wraparound
   const calculatePositions = useCallback(() => {
     if (!containerRef.current || chains.length === 0 || !cChain) return;
 
@@ -173,11 +164,10 @@ export function NetworkTopologyGraph() {
     setDimensions({ width, height });
 
     const centerX = width / 2;
-    const centerY = height / 2; // Centered vertically now
+    const centerY = height / 2;
 
     const newPositions = new Map<string, NodePosition>();
 
-    // Position C-Chain at center
     newPositions.set(cChain.chainId, {
       x: centerX,
       y: centerY,
@@ -186,17 +176,13 @@ export function NetworkTopologyGraph() {
       visible: true
     });
 
-    // Position other chains in orbits
     const otherChains = chains.filter(chain => chain.chainId !== cChain.chainId);
-
-    // Group chains by orbit
     const orbitGroups: Chain[][] = [[], [], []];
     otherChains.forEach(chain => {
       const orbit = chainOrbits.get(chain.chainId) ?? 0;
       orbitGroups[orbit].push(chain);
     });
 
-    // Calculate positions for each orbit with FULL CIRCLE rotation
     orbitGroups.forEach((orbitChains, orbitIndex) => {
       if (orbitChains.length === 0) return;
 
@@ -204,22 +190,18 @@ export function NetworkTopologyGraph() {
       const currentRotation = rotationAngles.current[orbitIndex];
 
       orbitChains.forEach((chain, chainIndex) => {
-        // FULL CIRCLE: Evenly distribute chains around the complete circle (360 degrees)
-        const baseAngle = (chainIndex / orbitChains.length) * 2 * Math.PI; // Changed from Math.PI to 2 * Math.PI
+        const baseAngle = (chainIndex / orbitChains.length) * 2 * Math.PI;
         const totalAngle = baseAngle + currentRotation;
 
-        // Calculate position using full circle
         const x = centerX + radius * Math.cos(totalAngle);
         const y = centerY + radius * Math.sin(totalAngle);
 
-        // ALL NODES ARE ALWAYS VISIBLE - no more disappearing/blank screen
-        // Remove the complex visibility logic that was causing blank periods
         newPositions.set(chain.chainId, {
           x,
           y,
           orbit: orbitIndex,
           angle: totalAngle,
-          visible: true // Always visible for seamless rotation
+          visible: true
         });
       });
     });
@@ -241,19 +223,14 @@ export function NetworkTopologyGraph() {
         return;
       }
 
-      // Update orbit rotations for seamless full circle movement
       for (let i = 0; i < ORBIT_CONFIG.count; i++) {
         const speed = ORBIT_CONFIG.baseSpeed * Math.pow(ORBIT_CONFIG.speedMultiplier, i);
         rotationAngles.current[i] += speed * deltaTime;
-
-        // Normalize rotation to prevent overflow (seamless wraparound)
         rotationAngles.current[i] = rotationAngles.current[i] % (2 * Math.PI);
       }
 
-      // Recalculate positions
       calculatePositions();
 
-      // Update bullets
       setBullets(prevBullets => {
         const centerPosition = positions.get(cChain.chainId);
         if (!centerPosition) return prevBullets;
@@ -261,17 +238,11 @@ export function NetworkTopologyGraph() {
         const updatedBullets = prevBullets
           .map(bullet => {
             const newProgress = bullet.progress + (bullet.speed * deltaTime * 0.001);
-            const fromPos = positions.get(bullet.fromChainId);
-            const toPos = positions.get(bullet.toChainId);
-
-            // All bullets are always visible since all nodes are always visible
             const visible = true;
-
             return { ...bullet, progress: newProgress, visible };
           })
           .filter(bullet => bullet.progress < 1 && bullet.visible);
 
-        // Spawn new bullets occasionally between any chains
         if (updatedBullets.length < MAX_BULLETS && Math.random() < BULLET_SPAWN_RATE) {
           const availableChains = chains.filter(chain => chain.chainId !== cChain.chainId);
 
@@ -285,7 +256,7 @@ export function NetworkTopologyGraph() {
               toChainId: direction === 'outgoing' ? randomChain.chainId : cChain.chainId,
               progress: 0,
               speed: BULLET_BASE_SPEED * (0.8 + Math.random() * 0.4),
-              size: 3 + Math.random() * 3, // Slightly bigger bullets too
+              size: 3 + Math.random() * 3,
               color: getRandomBulletColor(),
               visible: true
             };
@@ -309,7 +280,6 @@ export function NetworkTopologyGraph() {
     };
   }, [chains, cChain, positions, calculatePositions]);
 
-  // Handle container resize
   useEffect(() => {
     calculatePositions();
 
@@ -323,10 +293,9 @@ export function NetworkTopologyGraph() {
     };
   }, [calculatePositions]);
 
-  // Helper function for bullet colors
   const getRandomBulletColor = () => {
     const colors = [
-      '#E84142', // Avalanche red
+      '#E84142',
       '#3b82f6', '#60a5fa', '#93c5fd',
       '#6366f1', '#818cf8', '#a5b4fc',
       '#8b5cf6', '#a78bfa',
@@ -334,16 +303,13 @@ export function NetworkTopologyGraph() {
     return colors[Math.floor(Math.random() * colors.length)];
   };
 
-  // Handle chain click
   const handleChainClick = (chain: Chain) => {
     navigate(`/chain/${chain.chainId}`);
   };
 
-  // Create curved path for connections with gentler curve
   const createCurvedPath = (fromPos: NodePosition, toPos: NodePosition) => {
     const midX = (fromPos.x + toPos.x) / 2;
-    const midY = (fromPos.y + toPos.y) / 2 - 30; // Slightly more curve for bigger nodes
-
+    const midY = (fromPos.y + toPos.y) / 2 - 30;
     return `M ${fromPos.x} ${fromPos.y} Q ${midX} ${midY} ${toPos.x} ${toPos.y}`;
   };
 
@@ -379,254 +345,261 @@ export function NetworkTopologyGraph() {
   }
 
   return (
-    <div className="bg-white dark:bg-dark-800 rounded-lg shadow-md p-6 h-full">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Network Topology
-          </h3>
-          <div className="ml-2 px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-            <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
-              {chains.length} Chains
-            </span>
-          </div>
-          <button
-            onClick={() => {
-              bulletIdCounter.current = 0;
-              setBullets([]);
-            }}
-            className="ml-2 p-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/30 transition-colors"
-            title="Reset animation"
-          >
-            <Zap className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+    <div className="relative h-full">
+      {/* Outer container with glowing effect */}
+      <div className="relative h-full rounded-xl border-[0.75px] border-gray-200 dark:border-gray-700 p-2">
+        <GlowingEffect
+          spread={35}
+          glow={true}
+          disabled={false}
+          proximity={100}
+          inactiveZone={0.15}
+          borderWidth={2}
+          movementDuration={2}
+        />
 
-      <div
-        ref={containerRef}
-        className="relative bg-gradient-to-b from-gray-50 to-gray-100 dark:from-dark-900/70 dark:to-dark-900/90 rounded-lg border border-gray-100 dark:border-dark-700 h-[450px] w-full overflow-hidden"
-      >
-        {/* Background effect */}
-        <div className="absolute inset-0">
-          {/* Orbital guides (subtle) */}
-          {cChain && positions.get(cChain.chainId) && (
-            <svg className="absolute inset-0 w-full h-full pointer-events-none">
-              <defs>
-                <radialGradient id="centerGlow" cx="50%" cy="50%" r="60%">
-                  <stop offset="0%" stopColor="rgba(232, 65, 66, 0.15)" />
-                  <stop offset="100%" stopColor="rgba(232, 65, 66, 0)" />
-                </radialGradient>
-              </defs>
-
-              {/* Center glow */}
-              <circle
-                cx={positions.get(cChain.chainId)?.x}
-                cy={positions.get(cChain.chainId)?.y}
-                r="180"
-                fill="url(#centerGlow)"
-                className="animate-pulse-slow"
-              />
-
-              {/* Orbital guides - FULL CIRCLES now */}
-              {[0, 1, 2].map(orbit => {
-                const centerPos = positions.get(cChain.chainId);
-                if (!centerPos) return null;
-
-                const radius = ORBIT_CONFIG.baseRadius + (orbit * ORBIT_CONFIG.radiusIncrement);
-                return (
-                  <circle
-                    key={orbit}
-                    cx={centerPos.x}
-                    cy={centerPos.y}
-                    r={radius}
-                    fill="none"
-                    stroke="rgba(156, 163, 175, 0.1)"
-                    strokeWidth="1"
-                    strokeDasharray="8,12"
-                  />
-                );
-              })}
-            </svg>
-          )}
-        </div>
-
-        {/* Connections and bullets */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none">
-          <defs>
-            <filter id="bulletGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="2" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-
-          {/* Draw connections - all connections are always visible */}
-          {chains.map(chain => {
-            const position = positions.get(chain.chainId);
-            if (!position || chain.chainId === cChain?.chainId) return null;
-
-            const centerPosition = positions.get(cChain?.chainId || '');
-            if (!centerPosition) return null;
-
-            const isHighlighted = hoveredChain?.chainId === chain.chainId || selectedChain?.chainId === chain.chainId;
-            const opacity = isHighlighted ? 0.8 : 0.4;
-
-            return (
-              <path
-                key={`connection-${chain.chainId}`}
-                d={createCurvedPath(centerPosition, position)}
-                fill="none"
-                stroke={isHighlighted ? '#E84142' : '#cbd5e1'}
-                strokeWidth={isHighlighted ? "3" : "2"}
-                opacity={opacity}
-                strokeDasharray={isHighlighted ? "none" : "4,4"}
-                className="transition-all duration-300"
-              />
-            );
-          })}
-
-          {/* Draw bullets */}
-          {bullets.filter(bullet => bullet.visible).map(bullet => {
-            const fromPosition = positions.get(bullet.fromChainId);
-            const toPosition = positions.get(bullet.toChainId);
-
-            if (!fromPosition || !toPosition) return null;
-
-            // Calculate position along curved path
-            const t = bullet.progress;
-            const midX = (fromPosition.x + toPosition.x) / 2;
-            const midY = (fromPosition.y + toPosition.y) / 2 - 30;
-
-            // Quadratic Bezier curve interpolation
-            const x = (1 - t) * (1 - t) * fromPosition.x + 2 * (1 - t) * t * midX + t * t * toPosition.x;
-            const y = (1 - t) * (1 - t) * fromPosition.y + 2 * (1 - t) * t * midY + t * t * toPosition.y;
-
-            return (
-              <circle
-                key={bullet.id}
-                cx={x}
-                cy={y}
-                r={bullet.size}
-                fill={bullet.color}
-                filter="url(#bulletGlow)"
-                opacity="0.8"
-              />
-            );
-          })}
-        </svg>
-
-        {/* Render chain nodes - ALL NODES ARE ALWAYS VISIBLE */}
-        {chains.map(chain => {
-          const position = positions.get(chain.chainId);
-          if (!position) return null;
-
-          const isCenter = chain.chainId === cChain?.chainId;
-          const isHovered = chain.chainId === hoveredChain?.chainId;
-          const isSelected = chain.chainId === selectedChain?.chainId;
-
-          const nodeSize = getNodeSize(chain, isCenter);
-
-          return (
-            <div
-              key={chain.chainId}
-              className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 cursor-pointer 
-                ${isHovered || isSelected ? 'scale-110 z-20' : 'scale-100 z-10'}
-                ${isCenter ? 'z-30' : ''}
-              `}
-              style={{
-                left: `${position.x}px`,
-                top: `${position.y}px`,
-                width: `${nodeSize}px`,
-                height: `${nodeSize}px`,
-              }}
-              onMouseEnter={() => setHoveredChain(chain)}
-              onMouseLeave={() => setHoveredChain(null)}
-              onClick={() => handleChainClick(chain)}
-            >
-              {/* Special styling for center node */}
-              {isCenter && (
-                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-red-500/20 to-red-600/30 animate-pulse-slow"></div>
-              )}
-
-              {/* Node container */}
-              <div className={`
-                relative w-full h-full rounded-full flex items-center justify-center transition-all duration-300
-                ${isCenter
-                  ? 'bg-gradient-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/30'
-                  : 'bg-white dark:bg-dark-800 shadow-md border border-gray-200 dark:border-gray-700'}
-                ${isHovered || isSelected
-                  ? 'shadow-xl' + (isCenter ? '' : ' border-blue-400 dark:border-blue-300')
-                  : ''}
-              `}>
-                {/* TPS indicator for non-center nodes
-                {!isCenter && chain.tps && (
-                  <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-dark-800 ${chain.tps.value >= 1 ? 'bg-green-500' :
-                    chain.tps.value >= 0.1 ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}></div>
-                )} */}
-
-                {/* Inner content */}
-                <div className={`w-full h-full rounded-full flex items-center justify-center ${isCenter ? 'bg-white dark:bg-dark-800 ' : ''
-                  }`}>
-                  {chain.chainLogoUri ? (
-                    <img
-                      src={chain.chainLogoUri}
-                      alt={chain.chainName}
-                      className={`object-contain rounded-full ${isCenter ? 'w-3/4 h-3/4' : 'w-4/5 h-4/5'
-                        }`}
-                    />
-                  ) : (
-                    <Server className={`text-blue-600 dark:text-blue-400 ${isCenter ? 'w-1/2 h-1/2' : 'w-1/2 h-1/2'
-                      }`} />
-                  )}
+        {/* Inner content container */}
+        <div className={cn(
+          "relative h-full overflow-hidden rounded-lg border-[0.75px] border-gray-100 dark:border-gray-800",
+          "bg-white dark:bg-dark-800 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)]"
+        )}>
+          <div className="p-6 h-full flex flex-col">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Network Topology
+                </h3>
+                <div className="ml-2 px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                  <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                    {chains.length} Chains
+                  </span>
                 </div>
+                <button
+                  onClick={() => {
+                    bulletIdCounter.current = 0;
+                    setBullets([]);
+                  }}
+                  className="ml-2 p-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/30 transition-colors"
+                  title="Reset animation"
+                >
+                  <Zap className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Graph Container */}
+            <div
+              ref={containerRef}
+              className="relative flex-1 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-dark-900/70 dark:to-dark-900/90 rounded-lg border border-gray-100 dark:border-dark-700 overflow-hidden"
+            >
+              {/* Background effect */}
+              <div className="absolute inset-0">
+                {cChain && positions.get(cChain.chainId) && (
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    <defs>
+                      <radialGradient id="centerGlow" cx="50%" cy="50%" r="60%">
+                        <stop offset="0%" stopColor="rgba(232, 65, 66, 0.15)" />
+                        <stop offset="100%" stopColor="rgba(232, 65, 66, 0)" />
+                      </radialGradient>
+                    </defs>
+
+                    <circle
+                      cx={positions.get(cChain.chainId)?.x}
+                      cy={positions.get(cChain.chainId)?.y}
+                      r="180"
+                      fill="url(#centerGlow)"
+                      className="animate-pulse-slow"
+                    />
+
+                    {[0, 1, 2].map(orbit => {
+                      const centerPos = positions.get(cChain.chainId);
+                      if (!centerPos) return null;
+
+                      const radius = ORBIT_CONFIG.baseRadius + (orbit * ORBIT_CONFIG.radiusIncrement);
+                      return (
+                        <circle
+                          key={orbit}
+                          cx={centerPos.x}
+                          cy={centerPos.y}
+                          r={radius}
+                          fill="none"
+                          stroke="rgba(156, 163, 175, 0.1)"
+                          strokeWidth="1"
+                          strokeDasharray="8,12"
+                        />
+                      );
+                    })}
+                  </svg>
+                )}
               </div>
 
-              {/* Hover tooltip */}
-              {(isHovered || isSelected) && (
-                <div className="absolute -bottom-14 left-1/2 transform -translate-x-1/2 whitespace-nowrap
-                  px-3 py-2 rounded-md text-xs font-medium bg-white dark:bg-dark-800 shadow-lg
-                  border border-gray-200 dark:border-dark-700 text-gray-800 dark:text-gray-200
-                  animate-fade-in z-40">
-                  <div className="flex flex-col items-center">
-                    <span className="font-semibold">{chain.chainName}</span>
-                    {chain.tps && (
-                      <span className={`text-xs ${chain.tps.value >= 1 ? 'text-green-500' :
-                        chain.tps.value >= 0.1 ? 'text-yellow-500' : 'text-red-500'
-                        }`}>
-                        {chain.tps.value.toFixed(2)} TPS
-                      </span>
+              {/* Connections and bullets */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                <defs>
+                  <filter id="bulletGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+
+                {/* Draw connections */}
+                {chains.map(chain => {
+                  const position = positions.get(chain.chainId);
+                  if (!position || chain.chainId === cChain?.chainId) return null;
+
+                  const centerPosition = positions.get(cChain?.chainId || '');
+                  if (!centerPosition) return null;
+
+                  const isHighlighted = hoveredChain?.chainId === chain.chainId || selectedChain?.chainId === chain.chainId;
+                  const opacity = isHighlighted ? 0.8 : 0.4;
+
+                  return (
+                    <path
+                      key={`connection-${chain.chainId}`}
+                      d={createCurvedPath(centerPosition, position)}
+                      fill="none"
+                      stroke={isHighlighted ? '#E84142' : '#cbd5e1'}
+                      strokeWidth={isHighlighted ? "3" : "2"}
+                      opacity={opacity}
+                      strokeDasharray={isHighlighted ? "none" : "4,4"}
+                      className="transition-all duration-300"
+                    />
+                  );
+                })}
+
+                {/* Draw bullets */}
+                {bullets.filter(bullet => bullet.visible).map(bullet => {
+                  const fromPosition = positions.get(bullet.fromChainId);
+                  const toPosition = positions.get(bullet.toChainId);
+
+                  if (!fromPosition || !toPosition) return null;
+
+                  const t = bullet.progress;
+                  const midX = (fromPosition.x + toPosition.x) / 2;
+                  const midY = (fromPosition.y + toPosition.y) / 2 - 30;
+
+                  const x = (1 - t) * (1 - t) * fromPosition.x + 2 * (1 - t) * t * midX + t * t * toPosition.x;
+                  const y = (1 - t) * (1 - t) * fromPosition.y + 2 * (1 - t) * t * midY + t * t * toPosition.y;
+
+                  return (
+                    <circle
+                      key={bullet.id}
+                      cx={x}
+                      cy={y}
+                      r={bullet.size}
+                      fill={bullet.color}
+                      filter="url(#bulletGlow)"
+                      opacity="0.8"
+                    />
+                  );
+                })}
+              </svg>
+
+              {/* Render chain nodes */}
+              {chains.map(chain => {
+                const position = positions.get(chain.chainId);
+                if (!position) return null;
+
+                const isCenter = chain.chainId === cChain?.chainId;
+                const isHovered = chain.chainId === hoveredChain?.chainId;
+                const isSelected = chain.chainId === selectedChain?.chainId;
+
+                const nodeSize = getNodeSize(chain, isCenter);
+
+                return (
+                  <div
+                    key={chain.chainId}
+                    className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 cursor-pointer 
+                      ${isHovered || isSelected ? 'scale-110 z-20' : 'scale-100 z-10'}
+                      ${isCenter ? 'z-30' : ''}
+                    `}
+                    style={{
+                      left: `${position.x}px`,
+                      top: `${position.y}px`,
+                      width: `${nodeSize}px`,
+                      height: `${nodeSize}px`,
+                    }}
+                    onMouseEnter={() => setHoveredChain(chain)}
+                    onMouseLeave={() => setHoveredChain(null)}
+                    onClick={() => handleChainClick(chain)}
+                  >
+                    {isCenter && (
+                      <div className="absolute inset-2 rounded-full bg-gradient-to-br from-red-500/20 to-red-600/30 animate-pulse-slow"></div>
                     )}
-                    <span className="text-xs text-gray-500">
-                      {chain.validators.length} validators
-                    </span>
+
+                    <div className={`
+                      relative w-full h-full rounded-full flex items-center justify-center transition-all duration-300
+                      ${isCenter
+                        ? 'bg-gradient-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/30'
+                        : 'bg-white dark:bg-dark-800 shadow-md border border-gray-200 dark:border-gray-700'}
+                      ${isHovered || isSelected
+                        ? 'shadow-xl' + (isCenter ? '' : ' border-blue-400 dark:border-blue-300')
+                        : ''}
+                    `}>
+                      <div className={`w-full h-full rounded-full flex items-center justify-center ${isCenter ? 'bg-white dark:bg-dark-800 ' : ''
+                        }`}>
+                        {chain.chainLogoUri ? (
+                          <img
+                            src={chain.chainLogoUri}
+                            alt={chain.chainName}
+                            className={`object-contain rounded-full ${isCenter ? 'w-3/4 h-3/4' : 'w-4/5 h-4/5'
+                              }`}
+                          />
+                        ) : (
+                          <Server className={`text-blue-600 dark:text-blue-400 ${isCenter ? 'w-1/2 h-1/2' : 'w-1/2 h-1/2'
+                            }`} />
+                        )}
+                      </div>
+                    </div>
+
+                    {(isHovered || isSelected) && (
+                      <div className="absolute -bottom-14 left-1/2 transform -translate-x-1/2 whitespace-nowrap
+                        px-3 py-2 rounded-md text-xs font-medium bg-white dark:bg-dark-800 shadow-lg
+                        border border-gray-200 dark:border-dark-700 text-gray-800 dark:text-gray-200
+                        animate-fade-in z-40">
+                        <div className="flex flex-col items-center">
+                          <span className="font-semibold">{chain.chainName}</span>
+                          {chain.tps && (
+                            <span className={`text-xs ${chain.tps.value >= 1 ? 'text-green-500' :
+                              chain.tps.value >= 0.1 ? 'text-yellow-500' : 'text-red-500'
+                              }`}>
+                              {chain.tps.value.toFixed(2)} TPS
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-500">
+                            {chain.validators.length} validators
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                );
+              })}
             </div>
-          );
-        })}
-      </div>
 
-      {/* Status bar */}
-      <div className="mt-4 flex justify-between items-center">
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <Server className="w-4 h-4" />
-          <span>Active chains: <span className="font-semibold">{chains.length}</span></span>
-        </div>
+            {/* Status bar */}
+            <div className="mt-4 flex justify-between items-center">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <Server className="w-4 h-4" />
+                <span>Active chains: <span className="font-semibold">{chains.length}</span></span>
+              </div>
 
-        <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            <span className="text-gray-600 dark:text-gray-400">High TPS (≥1)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <span className="text-gray-600 dark:text-gray-400">Medium TPS (≥0.1)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span className="text-gray-600 dark:text-gray-400">Low TPS (&lt;0.1)</span>
+              <div className="flex items-center gap-3 text-xs">
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <span className="text-gray-600 dark:text-gray-400">High TPS (≥1)</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <span className="text-gray-600 dark:text-gray-400">Medium TPS (≥0.1)</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <span className="text-gray-600 dark:text-gray-400">Low TPS (&lt;0.1)</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
