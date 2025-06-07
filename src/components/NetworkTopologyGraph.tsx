@@ -26,12 +26,12 @@ interface Bullet {
 }
 
 const ORBIT_CONFIG = {
-  count: 3,
-  baseRadius: 100,
-  radiusIncrement: 80,
+  count: 3, // Increasing wont work decreasing will 
+  baseRadius: 90, // Increased from 100
+  radiusIncrement: 65, // Increased from 80
   baseSpeed: 0.00021,
   speedMultiplier: 0.9,
-  maxChainsPerOrbit: [8, 20, 50],
+  maxChainsPerOrbit: [9, 18, 54],
   tpsBasedExpansion: true,
 };
 
@@ -315,10 +315,28 @@ export function NetworkTopologyGraph() {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-dark-800 rounded-lg shadow-md p-6 h-full">
-        <div className="h-[400px] flex flex-col items-center justify-center">
-          <RefreshCw className="h-12 w-12 text-blue-500 animate-spin mb-4" />
-          <p className="text-gray-600 dark:text-gray-300">Loading network topology...</p>
+      <div className="relative h-full">
+        <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
+          <GlowingEffect
+            spread={25}
+            glow={true}
+            disabled={false}
+            proximity={60}
+            inactiveZone={0.1}
+            borderWidth={1}
+            movementDuration={1.2}
+          />
+          <div className={cn(
+            "relative h-full overflow-hidden rounded-lg",
+            "bg-white/5 dark:bg-white/[0.02] backdrop-blur-xl",
+            "border border-white/10 dark:border-white/5",
+            "shadow-2xl shadow-black/10 dark:shadow-black/20"
+          )}>
+            <div className="h-[500px] flex flex-col items-center justify-center">
+              <RefreshCw className="h-12 w-12 text-white/60 animate-spin mb-4" />
+              <p className="text-white/60">Loading network topology...</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -326,19 +344,37 @@ export function NetworkTopologyGraph() {
 
   if (error || chains.length === 0) {
     return (
-      <div className="bg-white dark:bg-dark-800 rounded-lg shadow-md p-6 h-full">
-        <div className="h-[400px] flex flex-col items-center justify-center">
-          <AlertTriangle className="h-12 w-12 text-yellow-500 mb-4" />
-          <p className="text-gray-600 dark:text-gray-300 text-center mb-4">
-            {error || 'No network data available'}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <RefreshCw className="-ml-1 mr-2 h-4 w-4" />
-            Retry
-          </button>
+      <div className="relative h-full">
+        <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
+          <GlowingEffect
+            spread={25}
+            glow={true}
+            disabled={false}
+            proximity={60}
+            inactiveZone={0.1}
+            borderWidth={1}
+            movementDuration={1.2}
+          />
+          <div className={cn(
+            "relative h-full overflow-hidden rounded-lg",
+            "bg-white/5 dark:bg-white/[0.02] backdrop-blur-xl",
+            "border border-white/10 dark:border-white/5",
+            "shadow-2xl shadow-black/10 dark:shadow-black/20"
+          )}>
+            <div className="h-[500px] flex flex-col items-center justify-center">
+              <AlertTriangle className="h-12 w-12 text-amber-400 mb-4" />
+              <p className="text-white/60 text-center mb-4">
+                {error || 'No network data available'}
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white backdrop-blur-sm border border-white/20 transition-all duration-200"
+              >
+                <RefreshCw className="-ml-1 mr-2 h-4 w-4" />
+                Retry
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -347,31 +383,33 @@ export function NetworkTopologyGraph() {
   return (
     <div className="relative h-full">
       {/* Outer container with glowing effect */}
-      <div className="relative h-full rounded-xl border-[0.75px] border-gray-200 dark:border-gray-700 p-2">
+      <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
         <GlowingEffect
-          spread={35}
+          spread={25}
           glow={true}
           disabled={false}
-          proximity={100}
-          inactiveZone={0.15}
-          borderWidth={2}
-          movementDuration={2}
+          proximity={60}
+          inactiveZone={0.1}
+          borderWidth={1}
+          movementDuration={1.2}
         />
 
         {/* Inner content container */}
         <div className={cn(
-          "relative h-full overflow-hidden rounded-lg border-[0.75px] border-gray-100 dark:border-gray-800",
-          "bg-white dark:bg-dark-800 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)]"
+          "relative h-full overflow-hidden rounded-lg",
+          "bg-white/5 dark:bg-white/[0.02] backdrop-blur-xl",
+          "border border-white/10 dark:border-white/5",
+          "shadow-2xl shadow-black/10 dark:shadow-black/20"
         )}>
-          <div className="p-6 h-full flex flex-col">
+          <div className="h-full flex flex-col">
             {/* Header */}
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center p-4 pb-2">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-white">
                   Network Topology
                 </h3>
-                <div className="ml-2 px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                  <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                <div className="px-2.5 py-1 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+                  <span className="text-xs font-medium text-white/80">
                     {chains.length} Chains
                   </span>
                 </div>
@@ -380,7 +418,7 @@ export function NetworkTopologyGraph() {
                     bulletIdCounter.current = 0;
                     setBullets([]);
                   }}
-                  className="ml-2 p-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/30 transition-colors"
+                  className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/60 hover:text-white/80 backdrop-blur-sm border border-white/20 transition-all duration-200"
                   title="Reset animation"
                 >
                   <Zap className="w-4 h-4" />
@@ -388,10 +426,10 @@ export function NetworkTopologyGraph() {
               </div>
             </div>
 
-            {/* Graph Container */}
+            {/* Graph Container - Now takes up most of the space */}
             <div
               ref={containerRef}
-              className="relative flex-1 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-dark-900/70 dark:to-dark-900/90 rounded-lg border border-gray-100 dark:border-dark-700 overflow-hidden"
+              className="relative flex-1 bg-gradient-to-br from-white/5 to-white/[0.02] rounded-lg border border-white/10 overflow-hidden mx-4 mb-4"
             >
               {/* Background effect */}
               <div className="absolute inset-0">
@@ -407,7 +445,7 @@ export function NetworkTopologyGraph() {
                     <circle
                       cx={positions.get(cChain.chainId)?.x}
                       cy={positions.get(cChain.chainId)?.y}
-                      r="180"
+                      r="220" // Increased from 180
                       fill="url(#centerGlow)"
                       className="animate-pulse-slow"
                     />
@@ -424,7 +462,7 @@ export function NetworkTopologyGraph() {
                           cy={centerPos.y}
                           r={radius}
                           fill="none"
-                          stroke="rgba(156, 163, 175, 0.1)"
+                          stroke="rgba(255, 255, 255, 0.1)"
                           strokeWidth="1"
                           strokeDasharray="8,12"
                         />
@@ -459,7 +497,7 @@ export function NetworkTopologyGraph() {
                       key={`connection-${chain.chainId}`}
                       d={createCurvedPath(centerPosition, position)}
                       fill="none"
-                      stroke={isHighlighted ? '#E84142' : '#cbd5e1'}
+                      stroke={isHighlighted ? '#E84142' : 'rgba(255, 255, 255, 0.3)'}
                       strokeWidth={isHighlighted ? "3" : "2"}
                       opacity={opacity}
                       strokeDasharray={isHighlighted ? "none" : "4,4"}
@@ -532,12 +570,12 @@ export function NetworkTopologyGraph() {
                       relative w-full h-full rounded-full flex items-center justify-center transition-all duration-300
                       ${isCenter
                         ? 'bg-gradient-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/30'
-                        : 'bg-white dark:bg-dark-800 shadow-md border border-gray-200 dark:border-gray-700'}
+                        : 'bg-white/10 backdrop-blur-sm shadow-md border border-white/20'}
                       ${isHovered || isSelected
-                        ? 'shadow-xl' + (isCenter ? '' : ' border-blue-400 dark:border-blue-300')
+                        ? 'shadow-xl' + (isCenter ? '' : ' border-white/40')
                         : ''}
                     `}>
-                      <div className={`w-full h-full rounded-full flex items-center justify-center ${isCenter ? 'bg-white dark:bg-dark-800 ' : ''
+                      <div className={`w-full h-full rounded-full flex items-center justify-center ${isCenter ? 'bg-white/10 backdrop-blur-sm' : ''
                         }`}>
                         {chain.chainLogoUri ? (
                           <img
@@ -547,7 +585,7 @@ export function NetworkTopologyGraph() {
                               }`}
                           />
                         ) : (
-                          <Server className={`text-blue-600 dark:text-blue-400 ${isCenter ? 'w-1/2 h-1/2' : 'w-1/2 h-1/2'
+                          <Server className={`text-white/80 ${isCenter ? 'w-1/2 h-1/2' : 'w-1/2 h-1/2'
                             }`} />
                         )}
                       </div>
@@ -555,19 +593,19 @@ export function NetworkTopologyGraph() {
 
                     {(isHovered || isSelected) && (
                       <div className="absolute -bottom-14 left-1/2 transform -translate-x-1/2 whitespace-nowrap
-                        px-3 py-2 rounded-md text-xs font-medium bg-white dark:bg-dark-800 shadow-lg
-                        border border-gray-200 dark:border-dark-700 text-gray-800 dark:text-gray-200
+                        px-3 py-2 rounded-md text-xs font-medium bg-white/10 backdrop-blur-xl shadow-lg
+                        border border-white/20 text-white
                         animate-fade-in z-40">
                         <div className="flex flex-col items-center">
                           <span className="font-semibold">{chain.chainName}</span>
                           {chain.tps && (
-                            <span className={`text-xs ${chain.tps.value >= 1 ? 'text-green-500' :
-                              chain.tps.value >= 0.1 ? 'text-yellow-500' : 'text-red-500'
+                            <span className={`text-xs ${chain.tps.value >= 1 ? 'text-emerald-400' :
+                              chain.tps.value >= 0.1 ? 'text-amber-400' : 'text-red-400'
                               }`}>
                               {chain.tps.value.toFixed(2)} TPS
                             </span>
                           )}
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-white/60">
                             {chain.validators.length} validators
                           </span>
                         </div>
@@ -577,30 +615,10 @@ export function NetworkTopologyGraph() {
                 );
               })}
             </div>
-
-            {/* Status bar */}
-            <div className="mt-4 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <Server className="w-4 h-4" />
-                <span>Active chains: <span className="font-semibold">{chains.length}</span></span>
-              </div>
-
-              <div className="flex items-center gap-3 text-xs">
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-gray-600 dark:text-gray-400">High TPS (≥1)</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <span className="text-gray-600 dark:text-gray-400">Medium TPS (≥0.1)</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <span className="text-gray-600 dark:text-gray-400">Low TPS (&lt;0.1)</span>
-                </div>
-              </div>
-            </div>
           </div>
+
+          {/* Subtle gradient overlay for depth */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-transparent to-black/10 pointer-events-none rounded-lg"></div>
         </div>
       </div>
     </div>
