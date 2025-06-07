@@ -29,7 +29,7 @@ const ORBIT_CONFIG = {
   count: 3, // Increasing wont work decreasing will 
   baseRadius: 90, // Increased from 100
   radiusIncrement: 65, // Increased from 80
-  baseSpeed: 0.00021,
+  baseSpeed: 0.000205,
   speedMultiplier: 0.9,
   maxChainsPerOrbit: [9, 18, 54],
   tpsBasedExpansion: true,

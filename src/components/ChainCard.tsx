@@ -42,15 +42,15 @@ export function ChainCard({ chain }: ChainCardProps) {
       {/* Outer container with minimal glowing effect */}
       <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
         <GlowingEffect
-          spread={25}
+          spread={55}
           glow={true}
           disabled={false}
           proximity={60}
           inactiveZone={0.1}
-          borderWidth={1}
+          borderWidth={2.5}
           movementDuration={1.2}
         />
-
+        {/* GLow config */}
         {/* Glassmorphic inner card */}
         <div
           className={cn(

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import * as d3 from 'd3';
 import { sankey, sankeyLinkHorizontal } from 'd3-sankey';
 import { format } from 'date-fns';
-import { RefreshCw, AlertTriangle, MessageSquare, ArrowUpDown, Activity, Clock } from 'lucide-react';
+import { RefreshCw, AlertTriangle, MessageSquare, Activity, Clock } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import { useNavigate } from 'react-router-dom';
 import { GlowingEffect } from './ui/glowing-effect';
@@ -90,21 +90,10 @@ export function TeleporterSankeyDiagram() {
     };
   }, [data]);
 
-  // This effect directly updates text colors when theme changes
-  useEffect(() => {
-    if (svgRef.current) {
-      // Find all node labels in the diagram and update their fill color directly
-      const nodeLabels = d3.select(svgRef.current).selectAll('.node-label');
-      nodeLabels.attr('fill', theme === 'dark' ? '#ffffff' : '#000000');
-
-      console.log(`Directly updated ${nodeLabels.size()} node labels to ${theme === 'dark' ? 'white' : 'black'}`);
-    }
-  }, [theme]);
-
   // Create a single, definitive function to force text colors
   const forceTextColors = useCallback(() => {
-    const textColor = theme === 'dark' ? '#ffffff' : '#000000';
-    const secondaryTextColor = theme === 'dark' ? 'rgba(226, 232, 240, 0.7)' : 'rgba(30, 41, 59, 0.7)';
+    const textColor = '#ffffff';
+    const secondaryTextColor = 'rgba(255, 255, 255, 0.6)';
 
     // Force direct DOM updates to ensure color consistency
     document.querySelectorAll('.node-label').forEach(el => {
@@ -114,58 +103,14 @@ export function TeleporterSankeyDiagram() {
     document.querySelectorAll('.value-label, .diagram-title').forEach(el => {
       el.setAttribute('fill', secondaryTextColor);
     });
-  }, [theme]);
+  }, []);
 
   // Apply text colors immediately after any state change that might affect them
   useEffect(() => {
     // Use setTimeout to ensure this runs after any React updates
     const timer = setTimeout(forceTextColors, 0);
     return () => clearTimeout(timer);
-  }, [theme, hoveredNode, hoveredLink, forceTextColors]);
-
-  // Apply text colors when the diagram is first drawn or redrawn
-  useEffect(() => {
-    if (data && svgRef.current) {
-      const timer = setTimeout(forceTextColors, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [data, forceTextColors]);
-
-  // This effect ensures text colors are fixed AFTER tooltip renders
-  useEffect(() => {
-    // This runs immediately when hoveredNode or hoveredLink changes
-    const fixColorsAfterTooltip = () => {
-      // Use RAF to ensure this runs after DOM updates
-      requestAnimationFrame(() => {
-        const textColor = theme === 'dark' ? '#ffffff' : '#000000';
-
-        // Force all node labels to have the correct theme color
-        document.querySelectorAll('.node-label').forEach(el => {
-          el.setAttribute('fill', textColor);
-        });
-
-        // Only run in light theme - this is for additional safety
-        if (theme === 'light') {
-          // Make absolutely sure text is black in light theme
-          setTimeout(() => {
-            document.querySelectorAll('.node-label').forEach(el => {
-              el.setAttribute('fill', '#000000');
-            });
-          }, 10);
-        }
-      });
-    };
-
-    fixColorsAfterTooltip();
-    // Set a series of delayed fixes to catch any late DOM updates
-    const t1 = setTimeout(fixColorsAfterTooltip, 50);
-    const t2 = setTimeout(fixColorsAfterTooltip, 100);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
-  }, [hoveredNode, hoveredLink, theme]);
+  }, [hoveredNode, hoveredLink, forceTextColors]);
 
   // Function to format chain names for better readability
   const formatChainName = (name: string) => {
@@ -186,16 +131,16 @@ export function TeleporterSankeyDiagram() {
   const getChainColor = useCallback((chainName: string) => {
     // Predefined colors for common chains
     const colorMap: Record<string, string> = {
-      'Avalanche (C-Chain)': theme === 'dark' ? '#E84142' : '#E84142', // Avalanche red
-      'C-Chain': theme === 'dark' ? '#E84142' : '#E84142', // Avalanche red
-      'Dexalot L1': theme === 'dark' ? '#2775CA' : '#2775CA', // Blue
-      'Dexalot': theme === 'dark' ? '#2775CA' : '#2775CA', // Blue
-      'zeroone Mainnet L1': theme === 'dark' ? '#8A2BE2' : '#8A2BE2', // Purple
-      'ZeroOne': theme === 'dark' ? '#8A2BE2' : '#8A2BE2', // Purple
-      'Lamina1 L1': theme === 'dark' ? '#00BFFF' : '#00BFFF', // Deep sky blue
-      'Lamina1': theme === 'dark' ? '#00BFFF' : '#00BFFF', // Deep sky blue
-      'PLYR PHI L1': theme === 'dark' ? '#32CD32' : '#32CD32', // Lime green
-      'PLYR': theme === 'dark' ? '#32CD32' : '#32CD32', // Lime green
+      'Avalanche (C-Chain)': '#E84142', // Avalanche red
+      'C-Chain': '#E84142', // Avalanche red
+      'Dexalot L1': '#2775CA', // Blue
+      'Dexalot': '#2775CA', // Blue
+      'zeroone Mainnet L1': '#8A2BE2', // Purple
+      'ZeroOne': '#8A2BE2', // Purple
+      'Lamina1 L1': '#00BFFF', // Deep sky blue
+      'Lamina1': '#00BFFF', // Deep sky blue
+      'PLYR PHI L1': '#32CD32', // Lime green
+      'PLYR': '#32CD32', // Lime green
     };
 
     // Return predefined color if available
@@ -209,11 +154,11 @@ export function TeleporterSankeyDiagram() {
     }, 0);
 
     const h = Math.abs(hash) % 360;
-    const s = theme === 'dark' ? '80%' : '70%';
-    const l = theme === 'dark' ? '60%' : '50%';
+    const s = '80%';
+    const l = '60%';
 
     return `hsl(${h}, ${s}, ${l})`;
-  }, [theme]);
+  }, []);
 
   // Function to find chain ID from chain name
   const findChainId = (chainName: string) => {
@@ -478,7 +423,7 @@ export function TeleporterSankeyDiagram() {
         .append('path')
         .attr('d', 'M 20 0 L 0 0 0 20')
         .attr('fill', 'none')
-        .attr('stroke', theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)')
+        .attr('stroke', 'rgba(255, 255, 255, 0.05)')
         .attr('stroke-width', 0.5);
 
       // Add background grid
@@ -549,18 +494,8 @@ export function TeleporterSankeyDiagram() {
           setHoveredLink(d);
           setTooltipPosition({ x: event.pageX, y: event.pageY });
 
-          // CRITICAL: Force all node labels to have the correct theme color IMMEDIATELY
-          const textColor = theme === 'dark' ? '#ffffff' : '#000000';
-          document.querySelectorAll('.node-label').forEach(el => {
-            el.setAttribute('fill', textColor);
-          });
-
-          // Also apply after a delay to catch any late renders
-          setTimeout(() => {
-            document.querySelectorAll('.node-label').forEach(el => {
-              el.setAttribute('fill', textColor);
-            });
-          }, 50);
+          // Force text colors
+          setTimeout(forceTextColors, 50);
         })
         .on('mousemove', function (event) {
           setTooltipPosition({ x: event.pageX, y: event.pageY });
@@ -572,19 +507,7 @@ export function TeleporterSankeyDiagram() {
             .attr('stroke-width', d => Math.max(1, d.width));
 
           setHoveredLink(null);
-
-          // CRITICAL: Force all node labels to have the correct theme color IMMEDIATELY
-          const textColor = theme === 'dark' ? '#ffffff' : '#000000';
-          document.querySelectorAll('.node-label').forEach(el => {
-            el.setAttribute('fill', textColor);
-          });
-
-          // Also apply after a delay to catch any late renders
-          setTimeout(() => {
-            document.querySelectorAll('.node-label').forEach(el => {
-              el.setAttribute('fill', textColor);
-            });
-          }, 50);
+          setTimeout(forceTextColors, 50);
         });
 
       // Draw the nodes
@@ -605,38 +528,14 @@ export function TeleporterSankeyDiagram() {
         .on('mouseover', function (event, d) {
           setHoveredNode(d);
           setTooltipPosition({ x: event.pageX, y: event.pageY });
-
-          // CRITICAL: Force all node labels to have the correct theme color IMMEDIATELY
-          const textColor = theme === 'dark' ? '#ffffff' : '#000000';
-          document.querySelectorAll('.node-label').forEach(el => {
-            el.setAttribute('fill', textColor);
-          });
-
-          // Also apply after a delay to catch any late renders
-          setTimeout(() => {
-            document.querySelectorAll('.node-label').forEach(el => {
-              el.setAttribute('fill', textColor);
-            });
-          }, 50);
+          setTimeout(forceTextColors, 50);
         })
         .on('mousemove', function (event) {
           setTooltipPosition({ x: event.pageX, y: event.pageY });
         })
         .on('mouseout', function () {
           setHoveredNode(null);
-
-          // CRITICAL: Force all node labels to have the correct theme color IMMEDIATELY
-          const textColor = theme === 'dark' ? '#ffffff' : '#000000';
-          document.querySelectorAll('.node-label').forEach(el => {
-            el.setAttribute('fill', textColor);
-          });
-
-          // Also apply after a delay to catch any late renders
-          setTimeout(() => {
-            document.querySelectorAll('.node-label').forEach(el => {
-              el.setAttribute('fill', textColor);
-            });
-          }, 50);
+          setTimeout(forceTextColors, 50);
         });
 
       // Add node rectangles with a gradient fill
@@ -677,7 +576,7 @@ export function TeleporterSankeyDiagram() {
           .attr('height', d.y1 - d.y0)
           .attr('width', d.x1 - d.x0)
           .attr('fill', 'none')
-          .attr('stroke', theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)')
+          .attr('stroke', 'rgba(255,255,255,0.1)')
           .attr('stroke-width', 1)
           .attr('rx', 4)
           .attr('ry', 4)
@@ -716,9 +615,9 @@ export function TeleporterSankeyDiagram() {
         .attr('y', d => (d.y1 - d.y0) / 2)
         .attr('dy', '0.35em')
         .attr('text-anchor', d => d.x0 < width / 2 ? 'start' : 'end')
-        .attr('class', 'node-label')  // Add a class to help with direct updates
+        .attr('class', 'node-label')
         .text(d => d.displayName)
-        .attr('fill', theme === 'dark' ? '#ffffff' : '#000000')
+        .attr('fill', '#ffffff')
         .attr('font-weight', 'bold')
         .attr('font-size', '12px')
         .attr('pointer-events', 'none');
@@ -728,10 +627,10 @@ export function TeleporterSankeyDiagram() {
         .attr('x', d => d.x0 < width / 2 ? d.x1 - d.x0 + 6 : -6)
         .attr('y', d => (d.y1 - d.y0) / 2 + 16)
         .attr('dy', '0.35em')
-        .attr('class', 'value-label')  // Add a class to help with direct updates
+        .attr('class', 'value-label')
         .attr('text-anchor', d => d.x0 < width / 2 ? 'start' : 'end')
         .text(d => `${d.value.toLocaleString()} msgs`)
-        .attr('fill', theme === 'dark' ? 'rgba(226, 232, 240, 0.7)' : 'rgba(30, 41, 59, 0.7)')
+        .attr('fill', 'rgba(255, 255, 255, 0.6)')
         .attr('font-size', '10px')
         .attr('pointer-events', 'none');
 
@@ -739,11 +638,11 @@ export function TeleporterSankeyDiagram() {
       svg.append('text')
         .attr('x', width / 2)
         .attr('y', -5)
-        .attr('class', 'diagram-title')  // Add a class to help with direct updates
+        .attr('class', 'diagram-title')
         .attr('text-anchor', 'middle')
         .attr('font-size', '12px')
         .attr('font-weight', 'bold')
-        .attr('fill', theme === 'dark' ? 'rgba(226, 232, 240, 0.7)' : 'rgba(30, 41, 59, 0.7)')
+        .attr('fill', 'rgba(255, 255, 255, 0.6)')
         .text(`Total: ${data.metadata.totalMessages.toLocaleString()} messages`);
 
       // Add a reset button if a chain is selected
@@ -759,8 +658,8 @@ export function TeleporterSankeyDiagram() {
           .attr('height', 24)
           .attr('rx', 12)
           .attr('ry', 12)
-          .attr('fill', theme === 'dark' ? 'rgba(30, 41, 59, 0.8)' : 'rgba(226, 232, 240, 0.8)')
-          .attr('stroke', theme === 'dark' ? 'rgba(226, 232, 240, 0.2)' : 'rgba(30, 41, 59, 0.2)')
+          .attr('fill', 'rgba(255, 255, 255, 0.1)')
+          .attr('stroke', 'rgba(255, 255, 255, 0.2)')
           .attr('stroke-width', 1);
 
         resetButton.append('text')
@@ -769,7 +668,7 @@ export function TeleporterSankeyDiagram() {
           .attr('text-anchor', 'middle')
           .attr('dominant-baseline', 'middle')
           .attr('font-size', '10px')
-          .attr('fill', theme === 'dark' ? 'rgba(226, 232, 240, 0.9)' : 'rgba(30, 41, 59, 0.9)')
+          .attr('fill', 'rgba(255, 255, 255, 0.9)')
           .text('Reset Filter');
       }
 
@@ -783,8 +682,7 @@ export function TeleporterSankeyDiagram() {
     } catch (err) {
       console.error('Error rendering Sankey diagram:', err);
 
-      // Use consistent colors for error messages too
-      const errorTextColor = theme === 'dark' ? '#e2e8f0' : '#1e293b';
+      const errorTextColor = '#ffffff';
 
       // Display error message in the SVG
       svg.append('text')
@@ -804,7 +702,7 @@ export function TeleporterSankeyDiagram() {
         .text(err instanceof Error ? err.message : 'Unknown error');
     }
 
-  }, [data, getChainColor, theme, selectedChain, navigate, handleNodeClick]);
+  }, [data, getChainColor, selectedChain, navigate, handleNodeClick, forceTextColors]);
 
   // Handle window resize
   useEffect(() => {
@@ -859,23 +757,25 @@ export function TeleporterSankeyDiagram() {
   if (loading) {
     return (
       <div className="relative h-full">
-        <div className="relative h-full rounded-xl border border-border p-2">
+        <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
           <GlowingEffect
-            spread={35}
+            spread={25}
             glow={true}
             disabled={false}
-            proximity={100}
-            inactiveZone={0.15}
-            borderWidth={2}
-            movementDuration={2}
+            proximity={60}
+            inactiveZone={0.1}
+            borderWidth={1}
+            movementDuration={1.2}
           />
           <div className={cn(
-            "relative h-full overflow-hidden rounded-lg border border-border",
-            "bg-card text-card-foreground shadow-sm"
+            "relative h-full overflow-hidden rounded-lg",
+            "bg-white/5 dark:bg-white/[0.02] backdrop-blur-xl",
+            "border border-white/10 dark:border-white/5",
+            "shadow-2xl shadow-black/10 dark:shadow-black/20"
           )}>
             <div className="h-[400px] flex flex-col items-center justify-center">
-              <RefreshCw className="h-12 w-12 text-primary animate-spin mb-4" />
-              <p className="text-muted-foreground">Loading message flow data...</p>
+              <RefreshCw className="h-12 w-12 text-white/60 animate-spin mb-4" />
+              <p className="text-white/60">Loading message flow data...</p>
             </div>
           </div>
         </div>
@@ -886,28 +786,30 @@ export function TeleporterSankeyDiagram() {
   if (!data) {
     return (
       <div className="relative h-full">
-        <div className="relative h-full rounded-xl border border-border p-2">
+        <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
           <GlowingEffect
-            spread={35}
+            spread={25}
             glow={true}
             disabled={false}
-            proximity={100}
-            inactiveZone={0.15}
-            borderWidth={2}
-            movementDuration={2}
+            proximity={60}
+            inactiveZone={0.1}
+            borderWidth={1}
+            movementDuration={1.2}
           />
           <div className={cn(
-            "relative h-full overflow-hidden rounded-lg border border-border",
-            "bg-card text-card-foreground shadow-sm"
+            "relative h-full overflow-hidden rounded-lg",
+            "bg-white/5 dark:bg-white/[0.02] backdrop-blur-xl",
+            "border border-white/10 dark:border-white/5",
+            "shadow-2xl shadow-black/10 dark:shadow-black/20"
           )}>
             <div className="h-[400px] flex flex-col items-center justify-center">
-              <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
-              <p className="text-muted-foreground text-center mb-4">
+              <AlertTriangle className="h-12 w-12 text-amber-400 mb-4" />
+              <p className="text-white/60 text-center mb-4">
                 No Teleporter message data available
               </p>
               <button
                 onClick={fetchData}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                className="inline-flex items-center px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white backdrop-blur-sm border border-white/20 transition-all duration-200"
               >
                 <RefreshCw className="-ml-1 mr-2 h-4 w-4" />
                 Retry
@@ -922,47 +824,49 @@ export function TeleporterSankeyDiagram() {
   return (
     <div className="relative h-full">
       {/* Outer container with glowing effect */}
-      <div className="relative h-full rounded-xl border border-border p-2">
+      <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
         <GlowingEffect
-          spread={35}
+          spread={25}
           glow={true}
           disabled={false}
-          proximity={100}
-          inactiveZone={0.15}
-          borderWidth={2}
-          movementDuration={2}
+          proximity={60}
+          inactiveZone={0.1}
+          borderWidth={1}
+          movementDuration={1.2}
         />
 
         {/* Inner content container */}
         <div className={cn(
-          "relative h-full overflow-hidden rounded-lg border border-border",
-          "bg-card text-card-foreground shadow-sm"
+          "relative h-full overflow-hidden rounded-lg",
+          "bg-white/5 dark:bg-white/[0.02] backdrop-blur-xl",
+          "border border-white/10 dark:border-white/5",
+          "shadow-2xl shadow-black/10 dark:shadow-black/20"
         )}>
-          <div className="p-6">
+          <div className="p-4">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-semibold text-foreground">
+                <h3 className="text-lg font-semibold text-white">
                   Avalanche Teleporter Messages
                 </h3>
               </div>
 
               <div className="flex items-center gap-3">
                 {/* Toggle switch for daily/weekly data */}
-                <div className="bg-muted rounded-full p-1 flex items-center">
+                <div className="bg-white/10 backdrop-blur-sm rounded-full p-1 flex items-center border border-white/20">
                   <button
                     onClick={() => setTimeframe('daily')}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${timeframe === 'daily'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${timeframe === 'daily'
+                      ? 'bg-white/20 text-white border border-white/30'
+                      : 'text-white/60 hover:bg-white/10 hover:text-white/80'
                       }`}
                   >
                     Daily
                   </button>
                   <button
                     onClick={() => setTimeframe('weekly')}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${timeframe === 'weekly'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${timeframe === 'weekly'
+                      ? 'bg-white/20 text-white border border-white/30'
+                      : 'text-white/60 hover:bg-white/10 hover:text-white/80'
                       }`}
                   >
                     Weekly
@@ -971,7 +875,7 @@ export function TeleporterSankeyDiagram() {
 
                 <button
                   onClick={fetchData}
-                  className="p-1.5 rounded-full bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                  className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/60 hover:text-white/80 backdrop-blur-sm border border-white/20 transition-all duration-200"
                   title="Refresh data"
                 >
                   <RefreshCw className="w-4 h-4" />
@@ -980,10 +884,10 @@ export function TeleporterSankeyDiagram() {
             </div>
 
             {error && (
-              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 mb-4 flex items-start gap-2">
-                <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-4 flex items-start gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-destructive">
+                  <p className="text-sm text-amber-300">
                     {error}
                   </p>
                 </div>
@@ -992,7 +896,7 @@ export function TeleporterSankeyDiagram() {
 
             <div
               ref={containerRef}
-              className="relative bg-gradient-to-br from-muted/50 to-muted rounded-lg border border-border h-[400px] overflow-hidden"
+              className="relative bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 h-[400px] overflow-hidden"
             >
               {/* Force remount of SVG on theme change by using theme and timestamp in the key */}
               <svg
@@ -1004,22 +908,20 @@ export function TeleporterSankeyDiagram() {
               {/* Tooltip for links */}
               {hoveredLink && (
                 <div
-                  className="absolute z-10 bg-popover text-popover-foreground p-3 rounded-lg shadow-lg border border-border text-sm pointer-events-none"
+                  className="absolute z-10 bg-black/80 backdrop-blur-xl text-white p-3 rounded-lg shadow-lg border border-white/20 text-sm pointer-events-none"
                   style={{
                     left: `${tooltipPosition.x + 10}px`,
                     top: `${tooltipPosition.y - 80}px`,
                     transform: 'translate(-50%, -100%)'
                   }}
-                  onMouseEnter={() => forceTextColors()}
-                  onMouseLeave={() => forceTextColors()}
                 >
-                  <div className="font-medium text-popover-foreground mb-1">
+                  <div className="font-medium text-white mb-1">
                     {hoveredLink.source.displayName} → {hoveredLink.target.displayName}
                   </div>
-                  <div className="text-muted-foreground">
+                  <div className="text-white/80">
                     Messages: <span className="font-semibold">{hoveredLink.value.toLocaleString()}</span>
                   </div>
-                  <div className="text-muted-foreground">
+                  <div className="text-white/80">
                     {((hoveredLink.value / data.metadata.totalMessages) * 100).toFixed(1)}% of total
                   </div>
                 </div>
@@ -1028,25 +930,23 @@ export function TeleporterSankeyDiagram() {
               {/* Tooltip for nodes */}
               {hoveredNode && !hoveredLink && (
                 <div
-                  className="absolute z-10 bg-popover text-popover-foreground p-3 rounded-lg shadow-lg border border-border text-sm pointer-events-none"
+                  className="absolute z-10 bg-black/80 backdrop-blur-xl text-white p-3 rounded-lg shadow-lg border border-white/20 text-sm pointer-events-none"
                   style={{
                     left: `${tooltipPosition.x + 10}px`,
                     top: `${tooltipPosition.y - 80}px`,
                     transform: 'translate(-50%, -100%)'
                   }}
-                  onMouseEnter={() => forceTextColors()}
-                  onMouseLeave={() => forceTextColors()}
                 >
-                  <div className="font-medium text-popover-foreground mb-1">
+                  <div className="font-medium text-white mb-1">
                     {hoveredNode.displayName}
                   </div>
-                  <div className="text-muted-foreground">
+                  <div className="text-white/80">
                     Total messages: <span className="font-semibold">{hoveredNode.value?.toLocaleString?.() || 0}</span>
                   </div>
-                  <div className="text-muted-foreground">
+                  <div className="text-white/80">
                     {((hoveredNode.value || 0) / data.metadata.totalMessages * 100).toFixed(1)}% of total
                   </div>
-                  <div className="text-xs text-primary mt-1">
+                  <div className="text-xs text-blue-400 mt-1">
                     Click to {findChainId(hoveredNode.originalName || '') ? 'view chain details' : selectedChain === hoveredNode.name ? 'reset filter' : 'filter connections'}
                   </div>
                 </div>
@@ -1056,45 +956,48 @@ export function TeleporterSankeyDiagram() {
             {/* Stats card at the bottom */}
             <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               {/* Message stats card */}
-              <div className="flex items-center bg-gradient-to-r from-primary to-primary/80 rounded-lg overflow-hidden shadow-lg">
+              <div className="flex items-center bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg border border-white/20">
                 <div className="px-3 py-2 flex items-center gap-2">
-                  <div className="bg-primary-foreground/20 rounded-full p-1.5">
-                    <MessageSquare className="w-4 h-4 text-primary-foreground" />
+                  <div className="bg-white/20 rounded-full p-1.5">
+                    <MessageSquare className="w-4 h-4 text-white" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs text-primary-foreground/70 font-medium">Total Messages</span>
-                    <span className="text-lg font-bold text-primary-foreground">{formatNumber(data.metadata.totalMessages)}</span>
+                    <span className="text-xs text-white/70 font-medium">Total Messages</span>
+                    <span className="text-lg font-bold text-white">{formatNumber(data.metadata.totalMessages)}</span>
                   </div>
                 </div>
-                <div className="h-full w-px bg-primary-foreground/20"></div>
+                <div className="h-full w-px bg-white/20"></div>
                 <div className="px-3 py-2 flex items-center gap-2">
-                  <div className="bg-primary-foreground/20 rounded-full p-1.5">
-                    <Activity className="w-4 h-4 text-primary-foreground" />
+                  <div className="bg-white/20 rounded-full p-1.5">
+                    <Activity className="w-4 h-4 text-white" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs text-primary-foreground/70 font-medium">Timeframe</span>
-                    <span className="text-sm font-bold text-primary-foreground">{timeframe === 'daily' ? 'Daily' : 'Weekly'}</span>
+                    <span className="text-xs text-white/70 font-medium">Timeframe</span>
+                    <span className="text-sm font-bold text-white">{timeframe === 'daily' ? 'Daily' : 'Weekly'}</span>
                   </div>
                 </div>
               </div>
 
               {/* Last updated badge */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-full shadow-sm border border-border">
-                <Clock className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm rounded-full shadow-sm border border-white/20">
+                <Clock className="w-4 h-4 text-white/60" />
                 <div className="flex flex-col">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-medium text-foreground">Last updated:</span>
-                    <span className="text-xs font-bold text-foreground">
+                    <span className="text-xs font-medium text-white">Last updated:</span>
+                    <span className="text-xs font-bold text-white">
                       {format(new Date(data.metadata.updatedAt), 'MMM d, yyyy')}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-white/60">
                     {getTimeSinceUpdate()}
                   </span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Subtle gradient overlay for depth */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-transparent to-black/10 pointer-events-none rounded-lg"></div>
         </div>
       </div>
     </div>

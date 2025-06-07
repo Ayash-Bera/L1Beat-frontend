@@ -84,23 +84,25 @@ export function TeleporterDailyChart() {
   if (loading) {
     return (
       <div className="relative h-full">
-        <div className="relative h-full rounded-xl border border-border p-2">
+        <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
           <GlowingEffect
-            spread={30}
+            spread={25}
             glow={true}
             disabled={false}
-            proximity={80}
+            proximity={60}
             inactiveZone={0.1}
-            borderWidth={2}
-            movementDuration={1.5}
+            borderWidth={1}
+            movementDuration={1.2}
           />
           <div className={cn(
-            "relative h-full overflow-hidden rounded-lg border border-border",
-            "bg-card text-card-foreground shadow-sm"
+            "relative h-full overflow-hidden rounded-lg",
+            "bg-white/5 dark:bg-white/[0.02] backdrop-blur-xl",
+            "border border-white/10 dark:border-white/5",
+            "shadow-2xl shadow-black/10 dark:shadow-black/20"
           )}>
             <div className="h-[300px] sm:h-[400px] flex flex-col items-center justify-center">
-              <RefreshCw className="h-12 w-12 text-primary animate-spin mb-4" />
-              <p className="text-muted-foreground">Loading daily message data...</p>
+              <RefreshCw className="h-12 w-12 text-white/60 animate-spin mb-4" />
+              <p className="text-white/60">Loading daily message data...</p>
             </div>
           </div>
         </div>
@@ -111,34 +113,36 @@ export function TeleporterDailyChart() {
   if (error || !dailyData.length) {
     return (
       <div className="relative h-full">
-        <div className="relative h-full rounded-xl border border-border p-2">
+        <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
           <GlowingEffect
-            spread={30}
+            spread={25}
             glow={true}
             disabled={false}
-            proximity={80}
+            proximity={60}
             inactiveZone={0.1}
-            borderWidth={2}
-            movementDuration={1.5}
+            borderWidth={1}
+            movementDuration={1.2}
           />
           <div className={cn(
-            "relative h-full overflow-hidden rounded-lg border border-border",
-            "bg-card text-card-foreground shadow-sm"
+            "relative h-full overflow-hidden rounded-lg",
+            "bg-white/5 dark:bg-white/[0.02] backdrop-blur-xl",
+            "border border-white/10 dark:border-white/5",
+            "shadow-2xl shadow-black/10 dark:shadow-black/20"
           )}>
-            <div className="p-4 sm:p-6">
+            <div className="p-4">
               <div className="flex items-center gap-2 mb-6">
-                <MessageSquare className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-semibold text-foreground">Daily Message Volume</h3>
+                <MessageSquare className="w-5 h-5 text-white/80" />
+                <h3 className="text-lg font-semibold text-white">Daily Message Volume</h3>
               </div>
               <div className="h-[300px] sm:h-[400px] flex flex-col items-center justify-center">
-                <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
-                <p className="text-muted-foreground text-center mb-4">
+                <AlertTriangle className="h-12 w-12 text-amber-400 mb-4" />
+                <p className="text-white/60 text-center mb-4">
                   {error || 'No daily message data available'}
                 </p>
                 <button
                   onClick={fetchData}
                   disabled={retrying}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="inline-flex items-center px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white backdrop-blur-sm border border-white/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {retrying ? (
                     <>
@@ -170,13 +174,14 @@ export function TeleporterDailyChart() {
         label: 'Total Daily Messages',
         data: dailyData.map(item => item.totalMessages),
         fill: true,
-        borderColor: isDark ? 'rgb(129, 140, 248)' : 'rgb(99, 102, 241)',
-        backgroundColor: isDark ? 'rgba(129, 140, 248, 0.2)' : 'rgba(99, 102, 241, 0.1)',
-        borderWidth: isDark ? 2 : 1.5,
+        borderColor: 'rgba(99, 102, 241, 0.8)',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        borderWidth: 2,
         tension: 0.4,
         pointRadius: isMobile ? 2 : 4,
         pointHoverRadius: isMobile ? 4 : 6,
-        pointBackgroundColor: isDark ? '#1e293b' : '#ffffff',
+        pointBackgroundColor: 'rgba(255, 255, 255, 0.8)',
+        pointBorderColor: 'rgba(99, 102, 241, 0.8)',
       },
     ],
   };
@@ -189,10 +194,10 @@ export function TeleporterDailyChart() {
         display: false,
       },
       tooltip: {
-        backgroundColor: isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-        titleColor: isDark ? '#e2e8f0' : '#1e293b',
-        bodyColor: isDark ? '#e2e8f0' : '#1e293b',
-        borderColor: isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
         borderWidth: 1,
         padding: isMobile ? 8 : 12,
         boxPadding: 4,
@@ -219,7 +224,7 @@ export function TeleporterDailyChart() {
           display: false,
         },
         ticks: {
-          color: isDark ? '#94a3b8' : '#64748b',
+          color: 'rgba(255, 255, 255, 0.6)',
           font: {
             size: isMobile ? 10 : 11,
           },
@@ -232,11 +237,11 @@ export function TeleporterDailyChart() {
       y: {
         beginAtZero: true,
         grid: {
-          color: isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.05)',
+          color: 'rgba(255, 255, 255, 0.1)',
           drawBorder: false,
         },
         ticks: {
-          color: isDark ? '#94a3b8' : '#64748b',
+          color: 'rgba(255, 255, 255, 0.6)',
           font: {
             size: isMobile ? 10 : 11,
           },
@@ -256,60 +261,62 @@ export function TeleporterDailyChart() {
   return (
     <div className="relative h-full">
       {/* Outer container with glowing effect */}
-      <div className="relative h-full rounded-xl border border-border p-2">
+      <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
         <GlowingEffect
-          spread={30}
+          spread={25}
           glow={true}
           disabled={false}
-          proximity={80}
+          proximity={60}
           inactiveZone={0.1}
-          borderWidth={2}
-          movementDuration={1.5}
+          borderWidth={1}
+          movementDuration={1.2}
         />
 
         {/* Inner content container */}
         <div className={cn(
-          "relative h-full overflow-hidden rounded-lg border border-border",
-          "bg-card text-card-foreground shadow-sm"
+          "relative h-full overflow-hidden rounded-lg",
+          "bg-white/5 dark:bg-white/[0.02] backdrop-blur-xl",
+          "border border-white/10 dark:border-white/5",
+          "shadow-2xl shadow-black/10 dark:shadow-black/20"
         )}>
-          <div className="p-4 sm:p-6">
-            <div className="flex flex-col gap-4 mb-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="p-4">
+            <div className="flex flex-col gap-3 mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5 text-primary" />
-                    <h3 className="text-lg font-semibold text-foreground">Daily Message Volume</h3>
+                    <MessageSquare className="w-5 h-5 text-white/80" />
+                    <h3 className="text-lg font-semibold text-white">Daily Message Volume</h3>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-white/60 mt-1">
                     Last updated: {format(parseISO(latestData.date), 'MMM d, h:mm a')}
                   </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                  <div className="bg-muted rounded-full p-1 flex">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-full p-1 flex border border-white/20">
                     <button
                       onClick={() => setTimeframe(7)}
-                      className={`flex-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${timeframe === 7
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      className={`flex-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${timeframe === 7
+                        ? 'bg-white/20 text-white border border-white/30'
+                        : 'text-white/60 hover:bg-white/10 hover:text-white/80'
                         }`}
                     >
                       7D
                     </button>
                     <button
                       onClick={() => setTimeframe(14)}
-                      className={`flex-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${timeframe === 14
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      className={`flex-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${timeframe === 14
+                        ? 'bg-white/20 text-white border border-white/30'
+                        : 'text-white/60 hover:bg-white/10 hover:text-white/80'
                         }`}
                     >
                       14D
                     </button>
                     <button
                       onClick={() => setTimeframe(30)}
-                      className={`flex-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${timeframe === 30
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      className={`flex-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${timeframe === 30
+                        ? 'bg-white/20 text-white border border-white/30'
+                        : 'text-white/60 hover:bg-white/10 hover:text-white/80'
                         }`}
                     >
                       30D
@@ -318,20 +325,23 @@ export function TeleporterDailyChart() {
                 </div>
               </div>
 
-              <div className="bg-muted/50 rounded-lg p-3">
-                <p className="text-2xl font-bold text-foreground">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                <p className="text-2xl font-bold text-white">
                   {latestData.totalMessages.toLocaleString()}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-white/60">
                   messages in the last {latestData.timeWindow}h
                 </p>
               </div>
             </div>
 
-            <div className="h-[300px] sm:h-[400px]">
+            <div className="h-[300px] sm:h-[400px] bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-3">
               <Line data={data} options={options} />
             </div>
           </div>
+
+          {/* Subtle gradient overlay for depth */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-transparent to-black/10 pointer-events-none rounded-lg"></div>
         </div>
       </div>
     </div>
