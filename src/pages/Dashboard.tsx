@@ -5,7 +5,7 @@ import { ChainCard } from '../components/ChainCard';
 import { StatusBar } from '../components/StatusBar';
 import { TVLChart } from '../components/TVLChart';
 import { TPSChart } from '../components/TPSChart';
-import { TeleporterSankeyDiagram } from '../components/TeleporterSankeyDiagram';
+import { TeleporterForceDirectedGraph } from '../components/TeleporterForceDirectedGraph';
 import { NetworkTopologyGraph } from '../components/NetworkTopologyGraph';
 import { Footer } from '../components/Footer';
 import { LayoutGrid, Activity, Network } from 'lucide-react';
@@ -125,8 +125,12 @@ export function Dashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <NetworkTopologyGraph />
-            <TeleporterSankeyDiagram />
+            <div className="aspect-square min-h-[600px]">
+              <NetworkTopologyGraph />
+            </div>
+            <div className="aspect-square min-h-[600px]">
+              <TeleporterForceDirectedGraph />
+            </div>
           </div>
         </div>
 

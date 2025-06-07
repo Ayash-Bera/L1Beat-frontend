@@ -91,7 +91,7 @@ export function TeleporterDailyChart() {
             disabled={false}
             proximity={60}
             inactiveZone={0.1}
-            borderWidth={1}
+            borderWidth={2}
             movementDuration={1.2}
           />
           <div className={cn(
@@ -120,7 +120,7 @@ export function TeleporterDailyChart() {
             disabled={false}
             proximity={60}
             inactiveZone={0.1}
-            borderWidth={1}
+            borderWidth={2}
             movementDuration={1.2}
           />
           <div className={cn(
@@ -268,7 +268,7 @@ export function TeleporterDailyChart() {
           disabled={false}
           proximity={60}
           inactiveZone={0.1}
-          borderWidth={1}
+          borderWidth={2}
           movementDuration={1.2}
         />
 

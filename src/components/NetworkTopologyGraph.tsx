@@ -35,6 +35,11 @@ const ORBIT_CONFIG = {
   tpsBasedExpansion: true,
 };
 
+// bullet config 
+const BULLET_BASE_SPEED = 0.55;
+const MAX_BULLETS = 50;
+const BULLET_SPAWN_RATE = 0.9;
+
 export function NetworkTopologyGraph() {
   const navigate = useNavigate();
   const [chains, setChains] = useState<Chain[]>([]);
@@ -51,10 +56,6 @@ export function NetworkTopologyGraph() {
   const bulletIdCounter = useRef(0);
   const rotationAngles = useRef<number[]>([0, 0, 0]);
 
-  // Animation settings
-  const BULLET_BASE_SPEED = 0.55;
-  const MAX_BULLETS = 50;
-  const BULLET_SPAWN_RATE = 0.9;
 
   useEffect(() => {
     async function fetchChains() {
@@ -256,7 +257,7 @@ export function NetworkTopologyGraph() {
               toChainId: direction === 'outgoing' ? randomChain.chainId : cChain.chainId,
               progress: 0,
               speed: BULLET_BASE_SPEED * (0.8 + Math.random() * 0.4),
-              size: 3 + Math.random() * 3,
+              size: 3 + Math.random() * 3, //bullet math
               color: getRandomBulletColor(),
               visible: true
             };
@@ -323,7 +324,7 @@ export function NetworkTopologyGraph() {
             disabled={false}
             proximity={60}
             inactiveZone={0.1}
-            borderWidth={1}
+            borderWidth={3}
             movementDuration={1.2}
           />
           <div className={cn(
@@ -347,12 +348,12 @@ export function NetworkTopologyGraph() {
       <div className="relative h-full">
         <div className="relative h-full rounded-xl border-[0.5px] border-white/10 dark:border-white/5 p-1">
           <GlowingEffect
-            spread={25}
+            spread={35}
             glow={true}
             disabled={false}
             proximity={60}
             inactiveZone={0.1}
-            borderWidth={1}
+            borderWidth={2}
             movementDuration={1.2}
           />
           <div className={cn(
@@ -390,7 +391,7 @@ export function NetworkTopologyGraph() {
           disabled={false}
           proximity={60}
           inactiveZone={0.1}
-          borderWidth={1}
+          borderWidth={2}
           movementDuration={1.2}
         />
 
@@ -445,7 +446,7 @@ export function NetworkTopologyGraph() {
                     <circle
                       cx={positions.get(cChain.chainId)?.x}
                       cy={positions.get(cChain.chainId)?.y}
-                      r="220" // Increased from 180
+                      r="200" // Increased from 180
                       fill="url(#centerGlow)"
                       className="animate-pulse-slow"
                     />
