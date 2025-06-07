@@ -26,9 +26,9 @@ export function Dashboard() {
         getChains(),
         getHealth()
       ]);
-      
+
       // Filter chains with at least 1 validator, but always include Avalanche chains
-      const filteredChains = chainsData.filter(chain => 
+      const filteredChains = chainsData.filter(chain =>
         // Include chains with validators
         (chain.validators && chain.validators.length >= 1) ||
         // OR include any Avalanche chain regardless of validators
@@ -45,7 +45,7 @@ export function Dashboard() {
         if (!isAvalancheA && isAvalancheB) return 1;
         return a.chainName.localeCompare(b.chainName);
       });
-      
+
       setChains(sortedChains);
       setHealth(healthData);
       setError(null);
@@ -59,7 +59,7 @@ export function Dashboard() {
 
   useEffect(() => {
     fetchData();
-    
+
     // Refresh health status every 5 minutes (increased from 1 minute)
     const healthInterval = setInterval(() => {
       getHealth().then(setHealth).catch(console.error);
@@ -70,7 +70,7 @@ export function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -78,8 +78,8 @@ export function Dashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-md w-full">
+      <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-900/80 backdrop-blur-sm rounded-lg shadow-lg p-6 max-w-md w-full border border-gray-200 dark:border-gray-800">
           <div className="text-center">
             <Activity className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Connection Error</h2>
@@ -111,10 +111,11 @@ export function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-black">
       <StatusBar health={health} />
-      
+
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Interchain Messaging Section */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Network className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -122,17 +123,19 @@ export function Dashboard() {
               Avalanche Interchain Messaging
             </h2>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <NetworkTopologyGraph />
             <TeleporterSankeyDiagram />
           </div>
         </div>
 
+        {/* Daily Chart Section */}
         <div className="mb-8">
           <TeleporterDailyChart />
         </div>
 
+        {/* Active Chains Section */}
         <div className="mb-8">
           <div className="flex items-center gap-2">
             <LayoutGrid className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -142,6 +145,7 @@ export function Dashboard() {
           </div>
         </div>
 
+        {/* Chain Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {chains.map(chain => (
             <ChainCard key={chain.chainId} chain={chain} />

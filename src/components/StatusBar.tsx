@@ -39,9 +39,8 @@ export function StatusBar({ health }: StatusBarProps) {
   const isHealthy = health?.status.toLowerCase() === 'ok' || health?.status.toLowerCase() === 'healthy';
 
   return (
-    <div className={`sticky top-0 z-50 transform transition-transform duration-300 ${
-      isVisible ? 'translate-y-0' : '-translate-y-full'
-    }`}>
+    <div className={`sticky top-0 z-50 transform transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}>
       {/* Alpha Warning Banner */}
       <div className="bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border-b border-amber-200 dark:border-amber-900/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
@@ -54,8 +53,8 @@ export function StatusBar({ health }: StatusBarProps) {
         </div>
       </div>
 
-      {/* Main Navigation */}
-      <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg border-b border-gray-200 dark:border-dark-700 shadow-sm">
+      {/* Main Navigation with improved dark mode support */}
+      <div className="bg-white/90 dark:bg-black/90 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 shadow-sm dark:shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Health Status */}
@@ -65,37 +64,33 @@ export function StatusBar({ health }: StatusBarProps) {
                 className="relative transform transition-all duration-300 hover:scale-105 focus:outline-none group"
               >
                 <div
-                  className={`absolute inset-0 bg-red-500/20 dark:bg-red-500/30 rounded-lg filter blur-xl transition-opacity duration-500 ${
-                    isAnimating ? 'animate-heartbeat-glow' : 'opacity-0'
-                  }`}
+                  className={`absolute inset-0 bg-red-500/20 dark:bg-red-500/40 rounded-lg filter blur-xl transition-opacity duration-500 ${isAnimating ? 'animate-heartbeat-glow' : 'opacity-0'
+                    }`}
                 />
                 <img
                   src="https://raw.githubusercontent.com/muhammetselimfe/L1Beat/refs/heads/main/public/l1_logo_main_2.png"
                   alt="L1Beat"
-                  className={`h-8 w-auto relative ${
-                    isAnimating ? 'animate-heartbeat' : ''
-                  } transition-transform duration-300`}
+                  className={`h-8 w-auto relative ${isAnimating ? 'animate-heartbeat' : ''
+                    } transition-transform duration-300`}
                 />
               </button>
-              
+
               {health && (
-                <div className="hidden md:flex items-center gap-2 pl-6 border-l border-gray-200 dark:border-dark-700">
-                  <div className={`p-1.5 rounded-lg ${
-                    isHealthy 
-                      ? 'bg-green-100 dark:bg-green-500/20' 
-                      : 'bg-red-100 dark:bg-red-500/20'
-                  }`}>
+                <div className="hidden md:flex items-center gap-2 pl-6 border-l border-gray-200 dark:border-gray-700">
+                  <div className={`p-1.5 rounded-lg ${isHealthy
+                    ? 'bg-green-100 dark:bg-green-500/20'
+                    : 'bg-red-100 dark:bg-red-500/20'
+                    }`}>
                     {isHealthy ? (
                       <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
                     ) : (
                       <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                     )}
                   </div>
-                  <span className={`text-sm font-medium ${
-                    isHealthy 
-                      ? 'text-green-700 dark:text-green-400' 
-                      : 'text-red-700 dark:text-red-400'
-                  }`}>
+                  <span className={`text-sm font-medium ${isHealthy
+                    ? 'text-green-700 dark:text-green-400'
+                    : 'text-red-700 dark:text-red-400'
+                    }`}>
                     {isHealthy ? 'All Systems Operational' : 'System Issues Detected'}
                   </span>
                 </div>
@@ -117,7 +112,7 @@ export function StatusBar({ health }: StatusBarProps) {
                     </div>
                   )}
                 </button>
-                
+
                 <a
                   href="https://docs.avax.network/"
                   target="_blank"
@@ -131,7 +126,7 @@ export function StatusBar({ health }: StatusBarProps) {
                 <button
                   onClick={() => setShowTooltip('acps')}
                   onMouseLeave={() => setShowTooltip(null)}
-                  className="relative px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-sm"
+                  className="relative px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-glow"
                 >
                   ACPs
                   {showTooltip === 'acps' && (
@@ -161,30 +156,27 @@ export function StatusBar({ health }: StatusBarProps) {
             </div>
           </div>
 
-          {/* Mobile Menu */}
-          <div className={`md:hidden transition-all duration-300 ease-in-out ${
-            isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
-          }`}>
+          {/* Mobile Menu with improved dark mode */}
+          <div className={`md:hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+            }`}>
             <div className="py-3 space-y-3">
               {health && (
-                <div className="px-4 py-3 bg-gray-50 dark:bg-dark-700/50 rounded-lg">
+                <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <div className={`p-1.5 rounded-lg ${
-                      isHealthy 
-                        ? 'bg-green-100 dark:bg-green-500/20' 
-                        : 'bg-red-100 dark:bg-red-500/20'
-                    }`}>
+                    <div className={`p-1.5 rounded-lg ${isHealthy
+                      ? 'bg-green-100 dark:bg-green-500/20'
+                      : 'bg-red-100 dark:bg-red-500/20'
+                      }`}>
                       {isHealthy ? (
                         <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
                       ) : (
                         <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                       )}
                     </div>
-                    <span className={`text-sm font-medium ${
-                      isHealthy 
-                        ? 'text-green-700 dark:text-green-400' 
-                        : 'text-red-700 dark:text-red-400'
-                    }`}>
+                    <span className={`text-sm font-medium ${isHealthy
+                      ? 'text-green-700 dark:text-green-400'
+                      : 'text-red-700 dark:text-red-400'
+                      }`}>
                       {isHealthy ? 'All Systems Operational' : 'System Issues Detected'}
                     </span>
                   </div>
@@ -197,7 +189,7 @@ export function StatusBar({ health }: StatusBarProps) {
                     setShowTooltip('blog');
                     setTimeout(() => setShowTooltip(null), 2000);
                   }}
-                  className="w-full px-4 py-3 flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-dark-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700"
+                  className="w-full px-4 py-3 flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/50"
                 >
                   <span>Blog</span>
                   {showTooltip === 'blog' && (
@@ -209,7 +201,7 @@ export function StatusBar({ health }: StatusBarProps) {
                   href="https://docs.avax.network/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full px-4 py-3 flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-dark-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700"
+                  className="w-full px-4 py-3 flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/50"
                 >
                   <span>Docs</span>
                   <ExternalLink className="w-4 h-4" />
@@ -220,7 +212,7 @@ export function StatusBar({ health }: StatusBarProps) {
                     setShowTooltip('acps');
                     setTimeout(() => setShowTooltip(null), 2000);
                   }}
-                  className="w-full px-4 py-3 flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-dark-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-700"
+                  className="w-full px-4 py-3 flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-900/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/50"
                 >
                   <span>ACPs</span>
                   {showTooltip === 'acps' && (
