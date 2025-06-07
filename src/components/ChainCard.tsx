@@ -27,7 +27,7 @@ export function ChainCard({ chain }: ChainCardProps) {
   const tpsColor = getTPSColor(tpsValue);
 
   return (
-    <div 
+    <div
       className="stat-card cursor-pointer"
       onClick={() => navigate(`/chain/${chain.chainId}`)}
     >
@@ -35,8 +35,8 @@ export function ChainCard({ chain }: ChainCardProps) {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             {chain.chainLogoUri ? (
-              <img 
-                src={chain.chainLogoUri} 
+              <img
+                src={chain.chainLogoUri}
                 alt={`${chain.chainName} logo`}
                 className="w-10 h-10 rounded-lg shadow-sm"
               />
@@ -53,7 +53,7 @@ export function ChainCard({ chain }: ChainCardProps) {
             </div>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <div className="p-3 rounded-lg bg-gray-50 dark:bg-dark-800/50">
             <div className="flex items-center gap-2 mb-1">
@@ -78,8 +78,8 @@ export function ChainCard({ chain }: ChainCardProps) {
           <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/50">
             <div className="flex items-center gap-2">
               {chain.networkToken.logoUri && (
-                <img 
-                  src={chain.networkToken.logoUri} 
+                <img
+                  src={chain.networkToken.logoUri}
                   alt={`${chain.networkToken.name} logo`}
                   className="w-5 h-5 rounded-full"
                 />
